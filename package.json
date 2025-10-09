@@ -1,0 +1,32 @@
+{
+  "name": "mother_base_dbf",
+  "version": "1.0.0",
+  "main": "index.js",
+  "dependencies": {
+    "dotenv": "^17.2.3",
+    "express": "^5.1.0",
+    "node": "^24.10.0",
+    "node-bin-setup": "^1.1.4",
+    "pg": "^8.16.3"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node index.js",
+    "dev": "nodemon index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kdave007/Mother_Base_dbf.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/kdave007/Mother_Base_dbf/issues"
+  },
+  "homepage": "https://github.com/kdave007/Mother_Base_dbf#readme",
+  "description": "",
+  "devDependencies": {
+    "nodemon": "^3.1.10"
+  }
+}
