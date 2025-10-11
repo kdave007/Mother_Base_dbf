@@ -1,0 +1,901 @@
+{
+  "file_info": {
+    "file_path": "C:\\Users\\campo\\Documents\\projects\\DBF_meta_to_postgresql\\dbf_files\\XCORTE.DBF",
+    "file_name": "XCORTE.DBF",
+    "file_size_bytes": 10175120,
+    "record_count": 5598,
+    "field_count": 110,
+    "last_modified": "2125-10-02"
+  },
+  "postgresql_system_fields":[
+    { "name": "server_id", "type": "INTEGER", "nullable":"False", "autoincremental":"True", "comment": "Identificador único del corte" },
+    { "name": "hash_id", "type": "INTEGER", "constrain":"pk","nullable": "False" },
+    { "name": "client_id", "type": "VARCHAR", "constrain":"pk","nullable": "False" },
+    { "name": "created_at", "type": "TIMESTAMPTZ", "nullable": "False", "default": "CURRENT_TIMESTAMP", "comment": "Fecha y hora de creación del registro" },
+    { "name": "updated_at", "type": "TIMESTAMPTZ", "nullable": "False", "default": "CURRENT_TIMESTAMP", "comment": "Fecha y hora de última actualización" },
+    { "name": "version", "type": "INTEGER", "nullable": "False", "default": "1", "comment": "Versión del registro para optimistic locking" }
+  ],
+  "table_name": "XCORTE",
+  "fields": [
+    {
+      "name": "FOLIO",
+      "type": "C",
+      "length": 6,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Character/Text"
+    },
+    {
+      "name": "FECHA",
+      "type": "D",
+      "length": 8,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Date"
+    },
+    {
+      "name": "FECHA_ELAB",
+      "type": "D",
+      "length": 8,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Date"
+    },
+    {
+      "name": "HORA_ELAB",
+      "type": "C",
+      "length": 8,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Character/Text"
+    },
+    {
+      "name": "USUARIO",
+      "type": "C",
+      "length": 5,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Character/Text"
+    },
+    {
+      "name": "VTACONT",
+      "type": "N",
+      "length": 18,
+      "decimal_places": 4,
+      "nullable": true,
+      "description": "Numeric"
+    },
+    {
+      "name": "SVTACONT",
+      "type": "N",
+      "length": 18,
+      "decimal_places": 4,
+      "nullable": true,
+      "description": "Numeric"
+    },
+    {
+      "name": "DESCONT",
+      "type": "N",
+      "length": 18,
+      "decimal_places": 4,
+      "nullable": true,
+      "description": "Numeric"
+    },
+    {
+      "name": "SDESCONT",
+      "type": "N",
+      "length": 18,
+      "decimal_places": 4,
+      "nullable": true,
+      "description": "Numeric"
+    },
+    {
+      "name": "VTACRED",
+      "type": "N",
+      "length": 18,
+      "decimal_places": 4,
+      "nullable": true,
+      "description": "Numeric"
+    },
+    {
+      "name": "SVTACRED",
+      "type": "N",
+      "length": 18,
+      "decimal_places": 4,
+      "nullable": true,
+      "description": "Numeric"
+    },
+    {
+      "name": "DESCRED",
+      "type": "N",
+      "length": 18,
+      "decimal_places": 4,
+      "nullable": true,
+      "description": "Numeric"
+    },
+    {
+      "name": "SDESCRED",
+      "type": "N",
+      "length": 18,
+      "decimal_places": 4,
+      "nullable": true,
+      "description": "Numeric"
+    },
+    {
+      "name": "COBRO",
+      "type": "N",
+      "length": 18,
+      "decimal_places": 4,
+      "nullable": true,
+      "description": "Numeric"
+    },
+    {
+      "name": "SCOBRO",
+      "type": "N",
+      "length": 18,
+      "decimal_places": 4,
+      "nullable": true,
+      "description": "Numeric"
+    },
+    {
+      "name": "GASTO",
+      "type": "N",
+      "length": 18,
+      "decimal_places": 4,
+      "nullable": true,
+      "description": "Numeric"
+    },
+    {
+      "name": "SGASTO",
+      "type": "N",
+      "length": 18,
+      "decimal_places": 4,
+      "nullable": true,
+      "description": "Numeric"
+    },
+    {
+      "name": "DEPOSITO",
+      "type": "N",
+      "length": 18,
+      "decimal_places": 4,
+      "nullable": true,
+      "description": "Numeric"
+    },
+    {
+      "name": "SDEPOSITO",
+      "type": "N",
+      "length": 18,
+      "decimal_places": 4,
+      "nullable": true,
+      "description": "Numeric"
+    },
+    {
+      "name": "EFECTIVO",
+      "type": "N",
+      "length": 18,
+      "decimal_places": 4,
+      "nullable": true,
+      "description": "Numeric"
+    },
+    {
+      "name": "SEFECTIVO",
+      "type": "N",
+      "length": 18,
+      "decimal_places": 4,
+      "nullable": true,
+      "description": "Numeric"
+    },
+    {
+      "name": "CHEQUE",
+      "type": "N",
+      "length": 18,
+      "decimal_places": 4,
+      "nullable": true,
+      "description": "Numeric"
+    },
+    {
+      "name": "SCHEQUE",
+      "type": "N",
+      "length": 18,
+      "decimal_places": 4,
+      "nullable": true,
+      "description": "Numeric"
+    },
+    {
+      "name": "ENTPRO",
+      "type": "N",
+      "length": 18,
+      "decimal_places": 4,
+      "nullable": true,
+      "description": "Numeric"
+    },
+    {
+      "name": "SENTPRO",
+      "type": "N",
+      "length": 18,
+      "decimal_places": 4,
+      "nullable": true,
+      "description": "Numeric"
+    },
+    {
+      "name": "ENTSUC",
+      "type": "N",
+      "length": 18,
+      "decimal_places": 4,
+      "nullable": true,
+      "description": "Numeric"
+    },
+    {
+      "name": "SENTSUC",
+      "type": "N",
+      "length": 18,
+      "decimal_places": 4,
+      "nullable": true,
+      "description": "Numeric"
+    },
+    {
+      "name": "DEVCLI",
+      "type": "N",
+      "length": 18,
+      "decimal_places": 4,
+      "nullable": true,
+      "description": "Numeric"
+    },
+    {
+      "name": "SDEVCLI",
+      "type": "N",
+      "length": 18,
+      "decimal_places": 4,
+      "nullable": true,
+      "description": "Numeric"
+    },
+    {
+      "name": "BAJDEV",
+      "type": "N",
+      "length": 18,
+      "decimal_places": 4,
+      "nullable": true,
+      "description": "Numeric"
+    },
+    {
+      "name": "SBAJDEV",
+      "type": "N",
+      "length": 18,
+      "decimal_places": 4,
+      "nullable": true,
+      "description": "Numeric"
+    },
+    {
+      "name": "SALSUC",
+      "type": "N",
+      "length": 18,
+      "decimal_places": 4,
+      "nullable": true,
+      "description": "Numeric"
+    },
+    {
+      "name": "SSALSUC",
+      "type": "N",
+      "length": 18,
+      "decimal_places": 4,
+      "nullable": true,
+      "description": "Numeric"
+    },
+    {
+      "name": "STOCK",
+      "type": "N",
+      "length": 18,
+      "decimal_places": 4,
+      "nullable": true,
+      "description": "Numeric"
+    },
+    {
+      "name": "SALSTOCK",
+      "type": "N",
+      "length": 18,
+      "decimal_places": 4,
+      "nullable": true,
+      "description": "Numeric"
+    },
+    {
+      "name": "CONSASTOCK",
+      "type": "C",
+      "length": 30,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Character/Text"
+    },
+    {
+      "name": "ENTSTOCK",
+      "type": "N",
+      "length": 18,
+      "decimal_places": 4,
+      "nullable": true,
+      "description": "Numeric"
+    },
+    {
+      "name": "CONETSTOCK",
+      "type": "C",
+      "length": 30,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Character/Text"
+    },
+    {
+      "name": "SCARTERA",
+      "type": "N",
+      "length": 18,
+      "decimal_places": 4,
+      "nullable": true,
+      "description": "Numeric"
+    },
+    {
+      "name": "ENTCARTERA",
+      "type": "N",
+      "length": 18,
+      "decimal_places": 4,
+      "nullable": true,
+      "description": "Numeric"
+    },
+    {
+      "name": "CONENCARTE",
+      "type": "C",
+      "length": 30,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Character/Text"
+    },
+    {
+      "name": "SALCARTERA",
+      "type": "N",
+      "length": 18,
+      "decimal_places": 4,
+      "nullable": true,
+      "description": "Numeric"
+    },
+    {
+      "name": "CONSACARTE",
+      "type": "C",
+      "length": 30,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Character/Text"
+    },
+    {
+      "name": "DESCCARTER",
+      "type": "N",
+      "length": 18,
+      "decimal_places": 4,
+      "nullable": true,
+      "description": "Numeric"
+    },
+    {
+      "name": "INICIOMES",
+      "type": "C",
+      "length": 1,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Character/Text"
+    },
+    {
+      "name": "DDECONT",
+      "type": "N",
+      "length": 18,
+      "decimal_places": 4,
+      "nullable": true,
+      "description": "Numeric"
+    },
+    {
+      "name": "SDDECONT",
+      "type": "N",
+      "length": 18,
+      "decimal_places": 4,
+      "nullable": true,
+      "description": "Numeric"
+    },
+    {
+      "name": "DRECONT",
+      "type": "N",
+      "length": 18,
+      "decimal_places": 4,
+      "nullable": true,
+      "description": "Numeric"
+    },
+    {
+      "name": "SDRECONT",
+      "type": "N",
+      "length": 18,
+      "decimal_places": 4,
+      "nullable": true,
+      "description": "Numeric"
+    },
+    {
+      "name": "DDOCONT",
+      "type": "N",
+      "length": 18,
+      "decimal_places": 4,
+      "nullable": true,
+      "description": "Numeric"
+    },
+    {
+      "name": "SDDOCONT",
+      "type": "N",
+      "length": 18,
+      "decimal_places": 4,
+      "nullable": true,
+      "description": "Numeric"
+    },
+    {
+      "name": "DDECRED",
+      "type": "N",
+      "length": 18,
+      "decimal_places": 4,
+      "nullable": true,
+      "description": "Numeric"
+    },
+    {
+      "name": "SDDECRED",
+      "type": "N",
+      "length": 18,
+      "decimal_places": 4,
+      "nullable": true,
+      "description": "Numeric"
+    },
+    {
+      "name": "DRECRED",
+      "type": "N",
+      "length": 18,
+      "decimal_places": 4,
+      "nullable": true,
+      "description": "Numeric"
+    },
+    {
+      "name": "SDRECRED",
+      "type": "N",
+      "length": 18,
+      "decimal_places": 4,
+      "nullable": true,
+      "description": "Numeric"
+    },
+    {
+      "name": "DDOCRED",
+      "type": "N",
+      "length": 18,
+      "decimal_places": 4,
+      "nullable": true,
+      "description": "Numeric"
+    },
+    {
+      "name": "SDDOCRED",
+      "type": "N",
+      "length": 18,
+      "decimal_places": 4,
+      "nullable": true,
+      "description": "Numeric"
+    },
+    {
+      "name": "DECRED",
+      "type": "N",
+      "length": 18,
+      "decimal_places": 4,
+      "nullable": true,
+      "description": "Numeric"
+    },
+    {
+      "name": "SDECRED",
+      "type": "N",
+      "length": 18,
+      "decimal_places": 4,
+      "nullable": true,
+      "description": "Numeric"
+    },
+    {
+      "name": "DECONT",
+      "type": "N",
+      "length": 18,
+      "decimal_places": 4,
+      "nullable": true,
+      "description": "Numeric"
+    },
+    {
+      "name": "SDECONT",
+      "type": "N",
+      "length": 18,
+      "decimal_places": 4,
+      "nullable": true,
+      "description": "Numeric"
+    },
+    {
+      "name": "SALEEYS",
+      "type": "N",
+      "length": 18,
+      "decimal_places": 4,
+      "nullable": true,
+      "description": "Numeric"
+    },
+    {
+      "name": "SSALEEYS",
+      "type": "N",
+      "length": 18,
+      "decimal_places": 4,
+      "nullable": true,
+      "description": "Numeric"
+    },
+    {
+      "name": "SALEVALE",
+      "type": "N",
+      "length": 18,
+      "decimal_places": 4,
+      "nullable": true,
+      "description": "Numeric"
+    },
+    {
+      "name": "SSALEVALE",
+      "type": "N",
+      "length": 18,
+      "decimal_places": 4,
+      "nullable": true,
+      "description": "Numeric"
+    },
+    {
+      "name": "ENTEYS",
+      "type": "N",
+      "length": 18,
+      "decimal_places": 4,
+      "nullable": true,
+      "description": "Numeric"
+    },
+    {
+      "name": "SENTEYS",
+      "type": "N",
+      "length": 18,
+      "decimal_places": 4,
+      "nullable": true,
+      "description": "Numeric"
+    },
+    {
+      "name": "ENTVALE",
+      "type": "N",
+      "length": 18,
+      "decimal_places": 4,
+      "nullable": true,
+      "description": "Numeric"
+    },
+    {
+      "name": "SENTVALE",
+      "type": "N",
+      "length": 18,
+      "decimal_places": 4,
+      "nullable": true,
+      "description": "Numeric"
+    },
+    {
+      "name": "DEPTC",
+      "type": "N",
+      "length": 18,
+      "decimal_places": 4,
+      "nullable": true,
+      "description": "Numeric"
+    },
+    {
+      "name": "SDEPTC",
+      "type": "N",
+      "length": 18,
+      "decimal_places": 4,
+      "nullable": true,
+      "description": "Numeric"
+    },
+    {
+      "name": "CORTEZ",
+      "type": "N",
+      "length": 18,
+      "decimal_places": 4,
+      "nullable": true,
+      "description": "Numeric"
+    },
+    {
+      "name": "SCORTEZ",
+      "type": "N",
+      "length": 18,
+      "decimal_places": 4,
+      "nullable": true,
+      "description": "Numeric"
+    },
+    {
+      "name": "IMP_Z",
+      "type": "N",
+      "length": 18,
+      "decimal_places": 4,
+      "nullable": true,
+      "description": "Numeric"
+    },
+    {
+      "name": "SIMP_Z",
+      "type": "N",
+      "length": 18,
+      "decimal_places": 4,
+      "nullable": true,
+      "description": "Numeric"
+    },
+    {
+      "name": "ERRORZ",
+      "type": "N",
+      "length": 18,
+      "decimal_places": 4,
+      "nullable": true,
+      "description": "Numeric"
+    },
+    {
+      "name": "SERRORZ",
+      "type": "N",
+      "length": 18,
+      "decimal_places": 4,
+      "nullable": true,
+      "description": "Numeric"
+    },
+    {
+      "name": "AJUSTEZ",
+      "type": "N",
+      "length": 18,
+      "decimal_places": 4,
+      "nullable": true,
+      "description": "Numeric"
+    },
+    {
+      "name": "SAJUSTEZ",
+      "type": "N",
+      "length": 18,
+      "decimal_places": 4,
+      "nullable": true,
+      "description": "Numeric"
+    },
+    {
+      "name": "PCAJA",
+      "type": "N",
+      "length": 18,
+      "decimal_places": 4,
+      "nullable": true,
+      "description": "Numeric"
+    },
+    {
+      "name": "SPCAJA",
+      "type": "N",
+      "length": 18,
+      "decimal_places": 4,
+      "nullable": true,
+      "description": "Numeric"
+    },
+    {
+      "name": "CAMPO1",
+      "type": "N",
+      "length": 18,
+      "decimal_places": 4,
+      "nullable": true,
+      "description": "Numeric"
+    },
+    {
+      "name": "CAMPO2",
+      "type": "N",
+      "length": 18,
+      "decimal_places": 4,
+      "nullable": true,
+      "description": "Numeric"
+    },
+    {
+      "name": "CAMPO3",
+      "type": "N",
+      "length": 18,
+      "decimal_places": 4,
+      "nullable": true,
+      "description": "Numeric"
+    },
+    {
+      "name": "CAMPO4",
+      "type": "N",
+      "length": 18,
+      "decimal_places": 4,
+      "nullable": true,
+      "description": "Numeric"
+    },
+    {
+      "name": "CAMPO5",
+      "type": "N",
+      "length": 18,
+      "decimal_places": 4,
+      "nullable": true,
+      "description": "Numeric"
+    },
+    {
+      "name": "CAMPO6",
+      "type": "N",
+      "length": 18,
+      "decimal_places": 4,
+      "nullable": true,
+      "description": "Numeric"
+    },
+    {
+      "name": "CAMPO7",
+      "type": "N",
+      "length": 18,
+      "decimal_places": 4,
+      "nullable": true,
+      "description": "Numeric"
+    },
+    {
+      "name": "CAMPO8",
+      "type": "N",
+      "length": 18,
+      "decimal_places": 4,
+      "nullable": true,
+      "description": "Numeric"
+    },
+    {
+      "name": "CAMPO9",
+      "type": "N",
+      "length": 18,
+      "decimal_places": 4,
+      "nullable": true,
+      "description": "Numeric"
+    },
+    {
+      "name": "CAMPO10",
+      "type": "N",
+      "length": 18,
+      "decimal_places": 4,
+      "nullable": true,
+      "description": "Numeric"
+    },
+    {
+      "name": "CAMPO11",
+      "type": "D",
+      "length": 8,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Date"
+    },
+    {
+      "name": "CAMPO12",
+      "type": "D",
+      "length": 8,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Date"
+    },
+    {
+      "name": "CAMPO13",
+      "type": "C",
+      "length": 5,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Character/Text"
+    },
+    {
+      "name": "CAMPO14",
+      "type": "C",
+      "length": 5,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Character/Text"
+    },
+    {
+      "name": "CAMPO15",
+      "type": "C",
+      "length": 40,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Character/Text"
+    },
+    {
+      "name": "CORT_TIEND",
+      "type": "C",
+      "length": 2,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Character/Text"
+    },
+    {
+      "name": "CAJA_CLAVE",
+      "type": "C",
+      "length": 2,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Character/Text"
+    },
+    {
+      "name": "TURN_CLAVE",
+      "type": "C",
+      "length": 2,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Character/Text"
+    },
+    {
+      "name": "CORT_1TICK",
+      "type": "C",
+      "length": 7,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Character/Text"
+    },
+    {
+      "name": "CORT_UTICK",
+      "type": "C",
+      "length": 7,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Character/Text"
+    },
+    {
+      "name": "IMPTOCOM",
+      "type": "N",
+      "length": 18,
+      "decimal_places": 4,
+      "nullable": true,
+      "description": "Numeric"
+    },
+    {
+      "name": "IMPTOFAC",
+      "type": "N",
+      "length": 18,
+      "decimal_places": 4,
+      "nullable": true,
+      "description": "Numeric"
+    },
+    {
+      "name": "IMPTODEV",
+      "type": "N",
+      "length": 18,
+      "decimal_places": 4,
+      "nullable": true,
+      "description": "Numeric"
+    },
+    {
+      "name": "IMPTO1",
+      "type": "N",
+      "length": 18,
+      "decimal_places": 4,
+      "nullable": true,
+      "description": "Numeric"
+    },
+    {
+      "name": "IMPTO2",
+      "type": "N",
+      "length": 18,
+      "decimal_places": 4,
+      "nullable": true,
+      "description": "Numeric"
+    },
+    {
+      "name": "TIENDA",
+      "type": "C",
+      "length": 5,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Character/Text"
+    },
+    {
+      "name": "MODHORA",
+      "type": "C",
+      "length": 8,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Character/Text"
+    },
+    {
+      "name": "MODFECHA",
+      "type": "D",
+      "length": 8,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Date"
+    },
+    {
+      "name": "MODUSER",
+      "type": "C",
+      "length": 5,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Character/Text"
+    }
+  ]
+}

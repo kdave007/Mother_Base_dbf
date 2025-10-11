@@ -1,0 +1,629 @@
+{
+  "file_info": {
+    "file_path": "C:\\Users\\campo\\Documents\\projects\\DBF_meta_to_postgresql\\dbf_files\\CUNOTA.DBF",
+    "file_name": "CUNOTA.DBF",
+    "file_size_bytes": 117165386,
+    "record_count": 119554,
+    "field_count": 76,
+    "last_modified": "2125-09-29"
+  },
+  "postgresql_system_fields":[
+    { "name": "server_id", "type": "INTEGER", "nullable":"False", "autoincremental":"True", "comment": "Identificador único del corte" },
+    { "name": "recno_id", "type": "INTEGER", "constrain":"pk","nullable": "False" },
+    { "name": "client_id", "type": "VARCHAR", "constrain":"pk","nullable": "False" },
+    { "name": "created_at", "type": "TIMESTAMPTZ", "nullable": "False", "default": "CURRENT_TIMESTAMP", "comment": "Fecha y hora de creación del registro" },
+    { "name": "updated_at", "type": "TIMESTAMPTZ", "nullable": "False", "default": "CURRENT_TIMESTAMP", "comment": "Fecha y hora de última actualización" },
+    { "name": "version", "type": "INTEGER", "nullable": "False", "default": "1", "comment": "Versión del registro para optimistic locking" }
+  ],
+  "table_name": "CUNOTA",
+  "fields": [
+    {
+      "name": "NOTA_FOLIO",
+      "type": "C",
+      "length": 7,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Character/Text"
+    },
+    {
+      "name": "PROD_CLAVE",
+      "type": "C",
+      "length": 16,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Character/Text"
+    },
+    {
+      "name": "NOTA_CANTI",
+      "type": "N",
+      "length": 19,
+      "decimal_places": 4,
+      "nullable": true,
+      "description": "Numeric"
+    },
+    {
+      "name": "NOTA_PENDI",
+      "type": "N",
+      "length": 19,
+      "decimal_places": 4,
+      "nullable": true,
+      "description": "Numeric"
+    },
+    {
+      "name": "NOTA_PRECI",
+      "type": "N",
+      "length": 17,
+      "decimal_places": 4,
+      "nullable": true,
+      "description": "Numeric"
+    },
+    {
+      "name": "NOTA_COSTO",
+      "type": "N",
+      "length": 17,
+      "decimal_places": 4,
+      "nullable": true,
+      "description": "Numeric"
+    },
+    {
+      "name": "NOTA_PIMPU",
+      "type": "N",
+      "length": 17,
+      "decimal_places": 4,
+      "nullable": true,
+      "description": "Numeric"
+    },
+    {
+      "name": "NOTA_PDESC",
+      "type": "N",
+      "length": 17,
+      "decimal_places": 4,
+      "nullable": true,
+      "description": "Numeric"
+    },
+    {
+      "name": "NOTA_PCOMI",
+      "type": "N",
+      "length": 17,
+      "decimal_places": 4,
+      "nullable": true,
+      "description": "Numeric"
+    },
+    {
+      "name": "NOTA_PFLAG",
+      "type": "C",
+      "length": 1,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Character/Text"
+    },
+    {
+      "name": "OBSERVA",
+      "type": "C",
+      "length": 18,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Character/Text"
+    },
+    {
+      "name": "TIENDA",
+      "type": "C",
+      "length": 5,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Character/Text"
+    },
+    {
+      "name": "TIPO_DOC",
+      "type": "C",
+      "length": 2,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Character/Text"
+    },
+    {
+      "name": "CENTRAL",
+      "type": "C",
+      "length": 1,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Character/Text"
+    },
+    {
+      "name": "BARCODE",
+      "type": "C",
+      "length": 16,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Character/Text"
+    },
+    {
+      "name": "NPRECLIS",
+      "type": "N",
+      "length": 17,
+      "decimal_places": 4,
+      "nullable": true,
+      "description": "Numeric"
+    },
+    {
+      "name": "CLISTA",
+      "type": "C",
+      "length": 1,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Character/Text"
+    },
+    {
+      "name": "NP_IMP1",
+      "type": "N",
+      "length": 8,
+      "decimal_places": 4,
+      "nullable": true,
+      "description": "Numeric"
+    },
+    {
+      "name": "NP_IMP2",
+      "type": "N",
+      "length": 8,
+      "decimal_places": 4,
+      "nullable": true,
+      "description": "Numeric"
+    },
+    {
+      "name": "NP_IMP3",
+      "type": "N",
+      "length": 8,
+      "decimal_places": 4,
+      "nullable": true,
+      "description": "Numeric"
+    },
+    {
+      "name": "CTIP_IMP1",
+      "type": "C",
+      "length": 1,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Character/Text"
+    },
+    {
+      "name": "CTIP_IMP2",
+      "type": "C",
+      "length": 1,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Character/Text"
+    },
+    {
+      "name": "CTIP_IMP3",
+      "type": "C",
+      "length": 1,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Character/Text"
+    },
+    {
+      "name": "CUSOLECT",
+      "type": "C",
+      "length": 1,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Character/Text"
+    },
+    {
+      "name": "CCLVAPRO2",
+      "type": "C",
+      "length": 16,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Character/Text"
+    },
+    {
+      "name": "CTIPOOFER",
+      "type": "C",
+      "length": 1,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Character/Text"
+    },
+    {
+      "name": "NPRECIVTA",
+      "type": "N",
+      "length": 17,
+      "decimal_places": 4,
+      "nullable": true,
+      "description": "Numeric"
+    },
+    {
+      "name": "NDESCTO1",
+      "type": "N",
+      "length": 18,
+      "decimal_places": 4,
+      "nullable": true,
+      "description": "Numeric"
+    },
+    {
+      "name": "NDESCTO2",
+      "type": "N",
+      "length": 18,
+      "decimal_places": 4,
+      "nullable": true,
+      "description": "Numeric"
+    },
+    {
+      "name": "CCODEOFER",
+      "type": "C",
+      "length": 5,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Character/Text"
+    },
+    {
+      "name": "CDESC_ADI",
+      "type": "C",
+      "length": 100,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Character/Text"
+    },
+    {
+      "name": "NCAMPO1",
+      "type": "N",
+      "length": 18,
+      "decimal_places": 4,
+      "nullable": true,
+      "description": "Numeric"
+    },
+    {
+      "name": "DCAMPO2",
+      "type": "D",
+      "length": 8,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Date"
+    },
+    {
+      "name": "CCAMPO3",
+      "type": "C",
+      "length": 5,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Character/Text"
+    },
+    {
+      "name": "COBS_INV",
+      "type": "C",
+      "length": 6,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Character/Text"
+    },
+    {
+      "name": "CCLAVE2",
+      "type": "C",
+      "length": 16,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Character/Text"
+    },
+    {
+      "name": "MODHORA",
+      "type": "C",
+      "length": 8,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Character/Text"
+    },
+    {
+      "name": "MODFECHA",
+      "type": "D",
+      "length": 8,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Date"
+    },
+    {
+      "name": "MODUSER",
+      "type": "C",
+      "length": 5,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Character/Text"
+    },
+    {
+      "name": "FOLIO",
+      "type": "C",
+      "length": 6,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Character/Text"
+    },
+    {
+      "name": "SERIE",
+      "type": "C",
+      "length": 10,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Character/Text"
+    },
+    {
+      "name": "TIPCFD",
+      "type": "C",
+      "length": 1,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Character/Text"
+    },
+    {
+      "name": "CANTID",
+      "type": "N",
+      "length": 12,
+      "decimal_places": 2,
+      "nullable": true,
+      "description": "Numeric"
+    },
+    {
+      "name": "UNIMED",
+      "type": "C",
+      "length": 6,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Character/Text"
+    },
+    {
+      "name": "CODIGO",
+      "type": "C",
+      "length": 20,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Character/Text"
+    },
+    {
+      "name": "DESCRI",
+      "type": "C",
+      "length": 50,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Character/Text"
+    },
+    {
+      "name": "PREUNI",
+      "type": "N",
+      "length": 12,
+      "decimal_places": 2,
+      "nullable": true,
+      "description": "Numeric"
+    },
+    {
+      "name": "IMPPAR",
+      "type": "N",
+      "length": 12,
+      "decimal_places": 2,
+      "nullable": true,
+      "description": "Numeric"
+    },
+    {
+      "name": "NUMPED",
+      "type": "C",
+      "length": 14,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Character/Text"
+    },
+    {
+      "name": "FECPED",
+      "type": "D",
+      "length": 8,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Date"
+    },
+    {
+      "name": "ADUANA",
+      "type": "C",
+      "length": 40,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Character/Text"
+    },
+    {
+      "name": "STATUS",
+      "type": "C",
+      "length": 1,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Character/Text"
+    },
+    {
+      "name": "USUARIO",
+      "type": "C",
+      "length": 8,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Character/Text"
+    },
+    {
+      "name": "FECHA",
+      "type": "D",
+      "length": 8,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Date"
+    },
+    {
+      "name": "HORA",
+      "type": "C",
+      "length": 8,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Character/Text"
+    },
+    {
+      "name": "CVESAT",
+      "type": "C",
+      "length": 8,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Character/Text"
+    },
+    {
+      "name": "UNISAT",
+      "type": "C",
+      "length": 3,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Character/Text"
+    },
+    {
+      "name": "IMPXPART",
+      "type": "N",
+      "length": 19,
+      "decimal_places": 4,
+      "nullable": true,
+      "description": "Numeric"
+    },
+    {
+      "name": "DESXPART",
+      "type": "N",
+      "length": 19,
+      "decimal_places": 4,
+      "nullable": true,
+      "description": "Numeric"
+    },
+    {
+      "name": "IVAXPART",
+      "type": "N",
+      "length": 19,
+      "decimal_places": 4,
+      "nullable": true,
+      "description": "Numeric"
+    },
+    {
+      "name": "IEPXPART",
+      "type": "N",
+      "length": 19,
+      "decimal_places": 4,
+      "nullable": true,
+      "description": "Numeric"
+    },
+    {
+      "name": "IM3XPART",
+      "type": "N",
+      "length": 19,
+      "decimal_places": 4,
+      "nullable": true,
+      "description": "Numeric"
+    },
+    {
+      "name": "TOTXPART",
+      "type": "N",
+      "length": 19,
+      "decimal_places": 4,
+      "nullable": true,
+      "description": "Numeric"
+    },
+    {
+      "name": "TIPOCALC",
+      "type": "C",
+      "length": 1,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Character/Text"
+    },
+    {
+      "name": "NCAMPO01",
+      "type": "N",
+      "length": 17,
+      "decimal_places": 5,
+      "nullable": true,
+      "description": "Numeric"
+    },
+    {
+      "name": "NCAMPO02",
+      "type": "N",
+      "length": 17,
+      "decimal_places": 5,
+      "nullable": true,
+      "description": "Numeric"
+    },
+    {
+      "name": "CCAMPO10",
+      "type": "C",
+      "length": 5,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Character/Text"
+    },
+    {
+      "name": "CCAMPO11",
+      "type": "C",
+      "length": 10,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Character/Text"
+    },
+    {
+      "name": "CCAMPO12",
+      "type": "C",
+      "length": 20,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Character/Text"
+    },
+    {
+      "name": "CCAMPO13",
+      "type": "C",
+      "length": 50,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Character/Text"
+    },
+    {
+      "name": "LCAMPO20",
+      "type": "L",
+      "length": 1,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Logical/Boolean"
+    },
+    {
+      "name": "LCAMPO21",
+      "type": "L",
+      "length": 1,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Logical/Boolean"
+    },
+    {
+      "name": "DCAMPO31",
+      "type": "D",
+      "length": 8,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Date"
+    },
+    {
+      "name": "CHORA31",
+      "type": "C",
+      "length": 8,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Character/Text"
+    },
+    {
+      "name": "DCAMPO32",
+      "type": "D",
+      "length": 8,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Date"
+    },
+    {
+      "name": "CHORA32",
+      "type": "C",
+      "length": 8,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Character/Text"
+    }
+  ]
+}

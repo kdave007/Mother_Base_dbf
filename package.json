@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "main": "index.js",
   "dependencies": {
+    "bull": "^4.16.5",
     "dotenv": "^17.2.3",
     "express": "^5.1.0",
     "node": "^24.10.0",
@@ -12,7 +13,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node index.js",
-    "dev": "nodemon index.js"
+    "dev": "nodemon server.js"
   },
   "repository": {
     "type": "git",
