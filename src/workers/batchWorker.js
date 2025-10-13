@@ -26,10 +26,9 @@ queue.process('process_batch', async (job) => {
     if (!tableSchema) {
       await logger.warn('Schema no encontrado', { table: table_name });
     }
-
     // 2. Procesar según la operación
     let results;
-    if (operation === 'create') {
+    if (operation === 'create' || operation === 'update') {
       results = await postgresService.saveRecords(
         records,
         table_name,
@@ -39,7 +38,7 @@ queue.process('process_batch', async (job) => {
         tableSchema
       );
     } else {
-      results = [{ status: 'error', error: `${operation} no implementado aún` }];
+      results = [{ status: 'error', error: `Operación no soportada: ${operation}` }];
     }
 
     // 3. Calcular estadísticas
