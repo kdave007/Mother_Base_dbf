@@ -39,7 +39,7 @@ class ItemsRoute {
         status: "ok",
         msg: "Batch encolado exitosamente",
         status_id: "BATCH_QUEUED",
-        cola_id: job.id,
+        id_cola: job.id,
         status_code: 200
       });
       
@@ -53,7 +53,7 @@ class ItemsRoute {
         status: "error",
         msg: `Error al encolar batch: ${error.message}`,
         status_id: "QUEUE_ERROR",
-        cola_id: null,
+        id_cola: null,
         status_code: 200
       });
     }

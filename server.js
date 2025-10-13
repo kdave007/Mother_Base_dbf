@@ -24,7 +24,7 @@ app.post('/items', async (req, res) => {
         status: "error",
         msg: "Datos incompletos",
         status_id: "VALIDATION_ERROR",
-        cola_id: null,
+        id_cola: null,
         status_code: 200
       });
     }
@@ -36,7 +36,7 @@ app.post('/items', async (req, res) => {
       status: "ok",
       msg: "Batch encolado exitosamente",
       status_id: "BATCH_QUEUED", 
-      cola_id: job.id,
+      id_cola: job.id,
       status_code: 200
     });
     
@@ -46,7 +46,7 @@ app.post('/items', async (req, res) => {
       status: "error",
       msg: `Error: ${error.message}`,
       status_id: "QUEUE_ERROR",
-      cola_id: null,
+      id_cola: null,
       status_code: 200
     });
   }
