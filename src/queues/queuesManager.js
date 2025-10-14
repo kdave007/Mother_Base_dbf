@@ -8,7 +8,7 @@ class QueueManager {
   getQueue(name) {
     if (!this.queues[name]) {
       this.queues[name] = new Queue(name, {
-        redis: { host: '127.0.0.1', port: 6379 }
+        redis: { host: 'redis', port: 6379 }
       });
     }
     return this.queues[name];

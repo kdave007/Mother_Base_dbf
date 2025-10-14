@@ -1,7 +1,7 @@
 const Queue = require('bull');
 
 const queue = new Queue('items-processing', {
-  redis: { host: '127.0.0.1', port: 6379 }
+  redis: { host: 'redis', port: 6379 }
 });
 
 async function monitor() {

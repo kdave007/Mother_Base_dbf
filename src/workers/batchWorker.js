@@ -4,7 +4,7 @@ const schemaService = require('../services/schemaService');
 const logger = require('../utils/logger'); // ← Nuevo logger
 
 const queue = new Queue('items-processing', {
-  redis: { host: '127.0.0.1', port: 6379 }
+  redis: { host: 'redis', port: 6379 }
 });
 
 queue.process('process_batch', async (job) => {

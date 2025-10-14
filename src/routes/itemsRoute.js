@@ -1,6 +1,7 @@
 const express = require('express');
 const queue = require('../workers/batchWorker');
-const logger = require('../utils/logger'); // ← Nuevo
+const logger = require('../utils/logger'); 
+const authMiddleware = require('../middleware/auth');
 
 class ItemsRoute {
   constructor(app) {
@@ -9,7 +10,7 @@ class ItemsRoute {
   }
 
   registerRoutes() {
-    this.app.post('/items', this.createItem.bind(this));
+    this.app.post('/items', authMiddleware, this.createItem.bind(this));
   }
 
   async createItem(req, res) {
