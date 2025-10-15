@@ -5,6 +5,7 @@ const logger = require('../utils/logger'); // ← Nuevo logger
 
 const queue = new Queue('items-processing', {
   redis: { host: 'redis', port: 6379 }
+  // redis: { host: 'localhost', port: 6379 }
 });
 
 queue.process('process_batch', async (job) => {
