@@ -21,11 +21,17 @@ class PostgresService {
             result = await this.saveSingleRecord(
               client, record, tableName, clientId, fieldId, tableSchema
             );
-          } else if (operation === 'update') {
+          } 
+          else if (operation === 'update') {
             result = await this.updateSingleRecord(
               client, record, tableName, clientId, fieldId, tableSchema
             );
           }
+          //else if (operation === 'delete') {
+            // result = await this.updateSingleRecord(
+            //   client, record, tableName, clientId, fieldId, tableSchema
+            // );
+          // }
           
           results.push(result);
         } catch (recordError) {

@@ -2,10 +2,10 @@ const Queue = require('bull');
 const postgresService = require('../services/postgresService');
 const schemaService = require('../services/schemaService');
 const logger = require('../utils/logger'); // ← Nuevo logger
+require('dotenv').config();
 
 const queue = new Queue('items-processing', {
-  redis: { host: 'redis', port: 6379 }
-  // redis: { host: 'localhost', port: 6379 }
+  redis: { host:  process.env.REDIS_HOST, port: process.env.REDIS_PORT }
 });
 
 queue.process('process_batch', async (job) => {

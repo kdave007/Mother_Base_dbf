@@ -1,7 +1,8 @@
 const Queue = require('bull');
+require('dotenv').config();
 
 const queue = new Queue('items-processing', {
-  redis: { host: 'redis', port: 6379 }
+  redis: { host:  process.env.REDIS_HOST, port: process.env.REDIS_PORT }
 });
 
 async function monitor() {

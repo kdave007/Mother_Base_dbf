@@ -8,6 +8,8 @@ const API_KEYS = {
     'XMART_XALAP': process.env.XMART_XALAP_API_KEY || '8DfvrDJNER',
     'ATENA_XALAP': process.env.ATENA_XALAP_API_KEY || '8TXfvrDJNER',
     'REBSA_XALAP': process.env.REBSA_XALAP_API_KEY || 'O4TfvrDJNER',
+    'CARRI_XALAP': process.env.REBSA_XALAP_API_KEY || 'DxN2tHrDJER',
+    'COAT1_XALAP': process.env.REBSA_XALAP_API_KEY || '9S4LYrDJNER',
   };
   
   const authMiddleware = (req, res, next) => {
