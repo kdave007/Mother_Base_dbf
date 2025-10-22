@@ -29,7 +29,7 @@ queue.process('process_batch', async (job) => {
     }
     // 2. Procesar según la operación
     let results;
-    if (operation === 'create' || operation === 'update') {
+    if (operation === 'create' || operation === 'update' || operation === 'delete') {
       results = await postgresService.saveRecords(
         records,
         table_name,

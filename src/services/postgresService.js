@@ -27,11 +27,11 @@ class PostgresService {
               client, record, tableName, clientId, fieldId, tableSchema
             );
           }
-          //else if (operation === 'delete') {
-            // result = await this.updateSingleRecord(
-            //   client, record, tableName, clientId, fieldId, tableSchema
-            // );
-          // }
+          else if (operation === 'delete') {
+            result = await this.deleteSingleRecord(
+              client, record, tableName, clientId, fieldId, tableSchema
+            );
+          }
           
           results.push(result);
         } catch (recordError) {
@@ -160,6 +160,33 @@ class PostgresService {
     
     if (result.rows.length === 0) {
       throw new Error(`Registro no encontrado para UPDATE (_${fieldId}: ${recordId})`);
+    }
+    
+    return {
+      record_id: recordId,
+      status: 'success',
+      postgres_id: result.rows[0]?.[`_${fieldId}`]
+    };
+  }
+
+  async deleteSingleRecord(client, record, tableName, clientId, fieldId, tableSchema) {
+    const { __meta } = record;
+    
+    const recordId = __meta?.[fieldId];
+    if (!recordId) {
+      throw new Error(`ID no proporcionado para DELETE (field_id: ${fieldId})`);
+    }
+    
+    const query = `
+      DELETE FROM ${tableName.toLowerCase()} 
+      WHERE _${fieldId} = $1
+      RETURNING _${fieldId}
+    `;
+    
+    const result = await client.query(query, [recordId]);
+    
+    if (result.rows.length === 0) {
+      throw new Error(`Registro no encontrado para DELETE (_${fieldId}: ${recordId})`);
     }
     
     return {
