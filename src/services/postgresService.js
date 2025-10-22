@@ -76,7 +76,7 @@ class PostgresService {
     // Metadata de __meta
     if (__meta) {
       for (const [key, value] of Object.entries(__meta)) {
-        if (key !== 'recno') {
+        if (key !== 'recno' && key !== 'ref_date') {
           columns.push(`_${key}`);
           values.push(String(value));
           placeholders.push(`$${paramCount}`);
@@ -132,7 +132,7 @@ class PostgresService {
     // Metadata de __meta a actualizar
     if (__meta) {
       for (const [key, value] of Object.entries(__meta)) {
-        if (key !== 'recno' && key !== fieldId) {
+        if (key !== 'recno' && key !== fieldId && key !== 'ref_date') {
           setClauses.push(`_${key} = $${paramCount}`);
           values.push(String(value));
           paramCount++;
