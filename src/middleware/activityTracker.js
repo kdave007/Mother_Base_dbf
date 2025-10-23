@@ -45,7 +45,8 @@ class ActivityTracker {
 
   middleware() {
     return (req, res, next) => {
-      const clientId = req.body?.client_id;
+      // Check both query params (NDJSON) and body (JSON)
+      const clientId = req.query?.client_id || req.body?.client_id;
       
       if (clientId) {
         // Add to buffer (non-blocking, instant)

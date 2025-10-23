@@ -108,7 +108,9 @@ app.use(activityTracker.middleware());
 ```
 
 ### 3. Request Format
-Any request with `client_id` in the body will be tracked:
+The tracker supports both JSON and NDJSON formats:
+
+**JSON Format** (client_id in body):
 ```json
 POST /items
 {
@@ -116,6 +118,15 @@ POST /items
   "operation": "create",
   "records": [...]
 }
+```
+
+**NDJSON Format** (client_id in query params):
+```bash
+POST /items?client_id=XALAP_BRUNO&operation=create&table_name=CANOTA
+Content-Type: text/plain
+
+{"field1": "value1"}
+{"field2": "value2"}
 ```
 
 ### 4. Query Activity
