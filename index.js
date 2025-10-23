@@ -14,9 +14,14 @@ app.use(express.text({
 }));
 
 // ✅ Importar servicios para verificación
+const ActivityTracker = require('./src/middleware/activityTracker');
 const schemaService = require('./src/services/schemaService');
 const logger = require('./src/utils/logger');
 const { testPostgresConnection } = require('./src/services/dbHealthService'); // ← Nueva importación
+
+// ✅ Activity Tracker Middleware (tracks client activity)
+const activityTracker = new ActivityTracker();
+app.use(activityTracker.middleware());
 
 // ✅ Función de verificaciones de startup
 async function startupChecks() {
@@ -131,6 +136,19 @@ process.on('uncaughtException', (err) => {
   console.error('Uncaught Exception:', err);
   logger.error('Uncaught Exception', { error: err.message });
   process.exit(1);
+});
+
+// Graceful shutdown
+process.on('SIGTERM', async () => {
+  console.log('SIGTERM received, shutting down gracefully...');
+  await activityTracker.shutdown();
+  process.exit(0);
+});
+
+process.on('SIGINT', async () => {
+  console.log('SIGINT received, shutting down gracefully...');
+  await activityTracker.shutdown();
+  process.exit(0);
 });
 
 // ✅ Iniciar la aplicación
