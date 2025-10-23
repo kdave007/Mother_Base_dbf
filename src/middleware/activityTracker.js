@@ -12,6 +12,7 @@ class ActivityTracker {
     this.isConnected = false;
     this.connectionRetries = 0;
     this.maxRetries = 5;
+    this.isFlushing = false; // Prevent concurrent flushes
 
     // Test connection before starting
     this.testConnection();
@@ -49,9 +50,11 @@ class ActivityTracker {
       if (clientId) {
         // Add to buffer (non-blocking, instant)
         this.activityBuffer.set(clientId, Date.now());
+        console.log(`📝 Added ${clientId} to buffer (size: ${this.activityBuffer.size})`);
         
         // Flush if buffer is full
         if (this.activityBuffer.size >= this.maxBufferSize) {
+          console.log(`🚀 Buffer full (${this.activityBuffer.size}), triggering flush...`);
           this.flushBuffer().catch(err => 
             console.error('Activity flush error:', err)
           );
@@ -65,6 +68,7 @@ class ActivityTracker {
   startPeriodicFlush() {
     this.flushTimer = setInterval(() => {
       if (this.activityBuffer.size > 0) {
+        console.log(`⏰ Periodic flush triggered (buffer size: ${this.activityBuffer.size})`);
         this.flushBuffer().catch(err => 
           console.error('Periodic flush error:', err)
         );
@@ -80,6 +84,14 @@ class ActivityTracker {
       console.warn('⚠ Activity Tracker: Skipping flush - not connected to database');
       return;
     }
+
+    // Prevent concurrent flushes
+    if (this.isFlushing) {
+      console.log('⏳ Flush already in progress, skipping...');
+      return;
+    }
+
+    this.isFlushing = true;
 
     // Get current buffer and clear it immediately
     const entries = Array.from(this.activityBuffer.entries());
@@ -108,6 +120,7 @@ class ActivityTracker {
       console.log(`✓ Flushed ${entries.length} client activities`);
     } catch (error) {
       console.error('Batch insert error:', error.message);
+      console.error('Full error:', error);
       
       // Mark as disconnected and try to reconnect
       if (error.code === 'ECONNREFUSED' || error.code === 'ENOTFOUND') {
@@ -124,6 +137,7 @@ class ActivityTracker {
       if (client) {
         client.release();
       }
+      this.isFlushing = false; // Release lock
     }
   }
 
