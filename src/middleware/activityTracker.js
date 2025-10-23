@@ -1,26 +1,45 @@
-const { Pool } = require('pg');
+const pgPool = require('../db/database');
 
 class ActivityTracker {
   constructor() {
-    // Dedicated connection pool for activity tracking
-    this.pool = new Pool({
-      host: process.env.DB_HOST,
-      port: process.env.DB_PORT,
-      database: process.env.DB_NAME,
-      user: process.env.DB_USER,
-      password: process.env.DB_PASSWORD,
-      max: 20, // Dedicated connections for activity tracking
-      idleTimeoutMillis: 30000,
-      connectionTimeoutMillis: 2000,
-    });
+    // Use existing database pool
+    this.pool = pgPool;
 
     // In-memory buffer for batching updates
     this.activityBuffer = new Map();
     this.flushInterval = 1000; // Flush every 1 second
     this.maxBufferSize = 100; // Flush when buffer reaches 100 entries
+    this.isConnected = false;
+    this.connectionRetries = 0;
+    this.maxRetries = 5;
+
+    // Test connection before starting
+    this.testConnection();
 
     // Start periodic flush
     this.startPeriodicFlush();
+  }
+
+  async testConnection() {
+    try {
+      const client = await this.pool.connect();
+      await client.query('SELECT 1');
+      client.release();
+      this.isConnected = true;
+      this.connectionRetries = 0;
+      console.log('✓ Activity Tracker connected to database');
+    } catch (error) {
+      this.isConnected = false;
+      this.connectionRetries++;
+      console.error(`✗ Activity Tracker connection failed (attempt ${this.connectionRetries}/${this.maxRetries}):`, error.message);
+      
+      if (this.connectionRetries < this.maxRetries) {
+        // Retry after 5 seconds
+        setTimeout(() => this.testConnection(), 5000);
+      } else {
+        console.error('✗ Activity Tracker: Max connection retries reached. Will continue without activity tracking.');
+      }
+    }
   }
 
   middleware() {
@@ -56,12 +75,20 @@ class ActivityTracker {
   async flushBuffer() {
     if (this.activityBuffer.size === 0) return;
 
+    // Skip if not connected
+    if (!this.isConnected) {
+      console.warn('⚠ Activity Tracker: Skipping flush - not connected to database');
+      return;
+    }
+
     // Get current buffer and clear it immediately
     const entries = Array.from(this.activityBuffer.entries());
     this.activityBuffer.clear();
 
-    const client = await this.pool.connect();
+    let client;
     try {
+      client = await this.pool.connect();
+      
       // Build batch upsert query
       // ON CONFLICT handles: if client_id exists, UPDATE last_seen; otherwise INSERT new row
       const values = entries.map(([clientId], idx) => 
@@ -80,13 +107,23 @@ class ActivityTracker {
       await client.query(query, clientIds);
       console.log(`✓ Flushed ${entries.length} client activities`);
     } catch (error) {
-      console.error('Batch insert error:', error);
+      console.error('Batch insert error:', error.message);
+      
+      // Mark as disconnected and try to reconnect
+      if (error.code === 'ECONNREFUSED' || error.code === 'ENOTFOUND') {
+        this.isConnected = false;
+        console.log('⚠ Connection lost, attempting to reconnect...');
+        this.testConnection();
+      }
+      
       // Re-add failed entries to buffer for retry
       entries.forEach(([clientId, timestamp]) => {
         this.activityBuffer.set(clientId, timestamp);
       });
     } finally {
-      client.release();
+      if (client) {
+        client.release();
+      }
     }
   }
 
@@ -99,8 +136,7 @@ class ActivityTracker {
     // Flush remaining entries before shutdown
     await this.flushBuffer();
     
-    // Close pool
-    await this.pool.end();
+    // Don't close the shared pool - it's managed by the main app
     console.log('Activity tracker shut down gracefully');
   }
 }

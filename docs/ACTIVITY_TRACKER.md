@@ -29,10 +29,10 @@ DO UPDATE SET last_seen = CURRENT_TIMESTAMP
 - **Subsequent times**: Updates only `last_seen` timestamp
 - Uses PostgreSQL's `ON CONFLICT` for atomic operations
 
-### 4. **Dedicated Connection Pool**
-- Separate pool (20 connections) for activity tracking
-- Prevents activity tracking from blocking main operations
-- Configurable timeouts and pool size
+### 4. **Shared Connection Pool**
+- Uses the existing database pool from `src/db/database.js`
+- No additional connections needed
+- Efficient resource usage
 
 ### 5. **Graceful Shutdown**
 - Flushes remaining buffer entries before shutdown
@@ -71,20 +71,22 @@ CREATE TABLE client_activity (
 ## Configuration
 
 ### Environment Variables
+The Activity Tracker uses the same database configuration as the rest of the application:
 ```env
-DB_HOST=localhost
-DB_PORT=5432
-DB_NAME=mydatabase
-DB_USER=postgres
-DB_PASSWORD=your_password
+PG_HOST=localhost
+PG_PORT=5432
+PG_DATABASE=shadow_moses
+PG_USER=postgres
+PG_PASSWORD=your_password
 ```
 
 ### Tunable Parameters (in activityTracker.js):
 ```javascript
 this.flushInterval = 1000;      // Flush every 1 second
 this.maxBufferSize = 100;       // Flush when buffer reaches 100
-max: 20,                        // Connection pool size
 ```
+
+Note: Connection pool size is managed by `src/db/database.js`
 
 ## Usage
 
