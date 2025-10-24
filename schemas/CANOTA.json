@@ -13,7 +13,10 @@
     { "name": "client_id", "type": "VARCHAR", "constrain":"pk","nullable": "False" },
     { "name": "created_at", "type": "TIMESTAMPTZ", "nullable": "False", "default": "CURRENT_TIMESTAMP", "comment": "Fecha y hora de creación del registro" },
     { "name": "updated_at", "type": "TIMESTAMPTZ", "nullable": "False", "default": "CURRENT_TIMESTAMP", "comment": "Fecha y hora de última actualización" },
-    { "name": "version", "type": "INTEGER", "nullable": "False", "default": "1", "comment": "Versión del registro para optimistic locking" }
+    { "name": "version", "type": "INTEGER", "nullable": "False", "default": "1", "comment": "Versión del registro para optimistic locking" },
+    { "name": "deleted", "type": "BOOLEAN", "nullable": "False", "default": "False", "comment": "bandera estado eliminación" },
+    { "name": "plaza", "type": "VARCHAR", "nullable": "False", "comment": "Plaza pertenciente del registro" },
+    { "name": "hash_comparador", "type": "VARCHAR","nullable": "False" }
   ],
   "table_name": "CANOTA",
   "fields": [
