@@ -87,11 +87,12 @@ class PostgresService {
     
     columns.push('_client_id');
     values.push(clientId);
+    placeholders.push(`$${paramCount}`);
+    paramCount++;
 
     let plaza = clientId && clientId.includes('_') ? clientId.split('_')[0] : clientId; 
-    columns.push('plaza')
+    columns.push('plaza');
     values.push(plaza);
-
     placeholders.push(`$${paramCount}`);
     
     const query = `
