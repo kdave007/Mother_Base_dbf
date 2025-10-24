@@ -88,7 +88,7 @@ class PostgresService {
     columns.push('_client_id');
     values.push(clientId);
 
-    let plaza = client_id && client_id.includes('_') ? client_id.split('_')[0] : client_id; 
+    let plaza = clientId && clientId.includes('_') ? clientId.split('_')[0] : clientId; 
     columns.push('plaza')
     values.push(plaza);
 
