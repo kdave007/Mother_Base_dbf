@@ -10,6 +10,7 @@ const API_KEYS = {
     'REBSA_XALAP': process.env.REBSA_XALAP_API_KEY || 'O4TfvrDJNER',
     'CARRI_XALAP': process.env.REBSA_XALAP_API_KEY || 'DxN2tHrDJER',
     'COAT1_XALAP': process.env.REBSA_XALAP_API_KEY || '9S4LYrDJNER',
+    'DUMMY_XALAP': process.env.DUMMY_XALAP_API_KEY || 'LWDSDxN2tH',
   };
   
   const authMiddleware = (req, res, next) => {

@@ -36,7 +36,8 @@ queue.process('process_batch', async (job) => {
         client_id,
         field_id,
         operation,
-        tableSchema
+        tableSchema,
+        job.id
       );
     } else {
       results = [{ status: 'error', error: `Operación no soportada: ${operation}` }];

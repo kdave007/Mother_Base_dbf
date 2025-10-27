@@ -6,13 +6,12 @@ class PostgresService {
     this.typeMapper = new TypeMapper();
   }
 
-  async saveRecords(records, tableName, clientId, fieldId, operation, tableSchema) {
+  async saveRecords(records, tableName, clientId, fieldId, operation, tableSchema, job_id) {
     const client = await pgPool.connect();
+    const results = [];
     
     try {
-      await client.query('BEGIN');
-      const results = [];
-      
+      // Procesar cada registro de forma independiente (sin transacción ni savepoints)
       for (const record of records) {
         try {
           let result;
@@ -34,7 +33,19 @@ class PostgresService {
           }
           
           results.push(result);
+          
         } catch (recordError) {
+          // Guardar error en tabla de errores
+          await this.saveToErrorTable({
+            tableName,
+            recordId: record.__meta?.[fieldId],
+            clientId,
+            operation,
+            error: recordError,
+            fieldId,
+            recordData: record
+          });
+          
           results.push({
             record_id: record.__meta?.[fieldId],
             status: 'error',
@@ -43,12 +54,8 @@ class PostgresService {
         }
       }
       
-      await client.query('COMMIT');
       return results;
       
-    } catch (error) {
-      await client.query('ROLLBACK');
-      throw error;
     } finally {
       client.release();
     }
@@ -201,6 +208,68 @@ class PostgresService {
       postgres_id: result.rows[0]?.[`_${fieldId}`]
     };
   }
+
+
+  async saveToErrorTable({ tableName, recordId, clientId, operation, error, fieldId, recordData }) {
+    /**
+     * use this method to insert or update on conflict errors when trying to make an operation to the main tables
+     * this error table has the table name + errors, like, canota_errors, cunota_errors, xcorte_errors 
+     * with this structrue :
+     * - recordId
+      - clientId  
+      - operation
+      - error
+      - fieldId
+      - recordData (opcional)
+     * 
+     */
+    
+    const client = await pgPool.connect();
+    
+    try {
+      const errorTableName = `${tableName.toLowerCase()}_errors`;
+      const errorMessage = error.message || String(error);
+      const errorType = error.name || 'Error';
+      
+      // Truncar valores para ajustarse a los límites de la tabla
+      const truncatedClientId = clientId ? String(clientId).substring(0, 50) : null;
+      const truncatedOperation = operation ? String(operation).substring(0, 20) : null;
+      const truncatedErrorType = errorType.substring(0, 50);
+      const truncatedFieldId = fieldId ? String(fieldId).substring(0, 50) : null;
+      
+      const query = `
+        INSERT INTO ${errorTableName} 
+        (record_id, client_id, operation, error_type, error_message, field_id, record_data, created_at)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, CURRENT_TIMESTAMP)
+        ON CONFLICT (record_id, client_id) 
+        DO UPDATE SET 
+          operation = EXCLUDED.operation,
+          error_type = EXCLUDED.error_type,
+          error_message = EXCLUDED.error_message,
+          field_id = EXCLUDED.field_id,
+          record_data = EXCLUDED.record_data,
+          created_at = CURRENT_TIMESTAMP
+      `;
+      
+      await client.query(query, [
+        recordId,
+        truncatedClientId,
+        truncatedOperation,
+        truncatedErrorType,
+        errorMessage,
+        truncatedFieldId,
+        recordData ? JSON.stringify(recordData) : null
+      ]);
+      
+    } catch (saveError) {
+      console.error('Error al guardar en tabla de errores:', saveError);
+      // No lanzamos el error para no interrumpir el flujo principal
+    } finally {
+      client.release();
+    }
+  }
+
+
 }
 
 module.exports = new PostgresService();
