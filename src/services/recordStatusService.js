@@ -27,7 +27,8 @@ class RecordStatusService {
             tableName, 
             fieldId, 
             recordId, 
-            clientId
+            clientId,
+            ver
           );
           
           if (mainTableResult.found) {
@@ -43,7 +44,8 @@ class RecordStatusService {
               client,
               tableName,
               recordId,
-              clientId
+              clientId,
+              ver
             );
             
             if (errorTableResult.found) {
@@ -93,20 +95,22 @@ class RecordStatusService {
   /**
    * Check if record exists in main table
    */
-  async checkMainTable(client, tableName, fieldId, recordId, clientId) {
+  async checkMainTable(client, tableName, fieldId, recordId, clientId, ver) {
     const query = `
       SELECT 
         _server_id,
         _${fieldId},
         _ver,
-        _deleted
+        _deleted,
+        _hash_comparador
       FROM ${tableName.toLowerCase()}
       WHERE _${fieldId} = $1 
         AND _client_id = $2
+        AND _ver = $3
       LIMIT 1
     `;
     
-    const result = await client.query(query, [recordId, clientId]);
+    const result = await client.query(query, [recordId, clientId, ver]);
     
     if (result.rows.length > 0) {
       return {
@@ -121,7 +125,7 @@ class RecordStatusService {
   /**
    * Check if record exists in error table
    */
-  async checkErrorTable(client, tableName, recordId, clientId) {
+  async checkErrorTable(client, tableName, recordId, clientId, ver) {
     const errorTableName = `${tableName.toLowerCase()}_errors`;
     
     const query = `
@@ -137,12 +141,13 @@ class RecordStatusService {
       FROM ${errorTableName}
       WHERE record_id = $1 
         AND client_id = $2
+        AND ver = $3
       ORDER BY created_at DESC
       LIMIT 1
     `;
     
     try {
-      const result = await client.query(query, [recordId, clientId]);
+      const result = await client.query(query, [recordId, clientId, ver]);
       
       if (result.rows.length > 0) {
         const errorRecord = result.rows[0];
