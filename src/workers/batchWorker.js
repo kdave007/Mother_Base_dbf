@@ -9,7 +9,7 @@ const queue = new Queue('items-processing', {
 });
 
 queue.process('process_batch', async (job) => {
-  const { operation, records, table_name, client_id, field_id } = job.data;
+  const { operation, records, table_name, client_id, field_id, ver } = job.data;
   
   await logger.info('Iniciando procesamiento de batch', {
     job_id: job.id,
@@ -37,7 +37,8 @@ queue.process('process_batch', async (job) => {
         field_id,
         operation,
         tableSchema,
-        job.id
+        job.id,
+        ver
       );
     } else {
       results = [{ status: 'error', error: `Operación no soportada: ${operation}` }];

@@ -6,7 +6,7 @@ class PostgresService {
     this.typeMapper = new TypeMapper();
   }
 
-  async saveRecords(records, tableName, clientId, fieldId, operation, tableSchema, job_id) {
+  async saveRecords(records, tableName, clientId, fieldId, operation, tableSchema, job_id, ver) {
     const client = await pgPool.connect();
     const results = [];
     
@@ -18,7 +18,7 @@ class PostgresService {
           
           if (operation === 'create') {
             result = await this.saveSingleRecord(
-              client, record, tableName, clientId, fieldId, tableSchema
+              client, record, tableName, clientId, fieldId, tableSchema, ver
             );
           } 
           else if (operation === 'update') {
@@ -61,7 +61,7 @@ class PostgresService {
     }
   }
   
-  async saveSingleRecord(client, record, tableName, clientId, fieldId, tableSchema) {
+  async saveSingleRecord(client, record, tableName, clientId, fieldId, tableSchema, ver) {
     const { __meta, ...dbfFields } = record;
     
     const columns = [];
@@ -101,6 +101,14 @@ class PostgresService {
     columns.push('plaza');
     values.push(plaza);
     placeholders.push(`$${paramCount}`);
+    paramCount++;
+    
+    // Agregar _ver si está presente
+    if (ver) {
+      columns.push('_ver');
+      values.push(ver);
+      placeholders.push(`$${paramCount}`);
+    }
     
     const query = `
       INSERT INTO ${tableName.toLowerCase()} 

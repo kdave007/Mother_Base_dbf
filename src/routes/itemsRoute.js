@@ -4,6 +4,7 @@ const express = require('express');
 const queue = require('../workers/batchWorker');
 const logger = require('../utils/logger'); 
 const authMiddleware = require('../middleware/auth');
+const recordStatusService = require('../services/recordStatusService');
 
 class ItemsRoute {
   constructor(app) {
@@ -13,6 +14,7 @@ class ItemsRoute {
 
   registerRoutes() {
     this.app.post('/items', authMiddleware, this.createItem.bind(this));
+    this.app.post('/records', authMiddleware, this.getRecords.bind(this));
   }
 
   async createItem(req, res) {
@@ -20,7 +22,7 @@ class ItemsRoute {
       console.log('🔍 Headers:', req.headers['content-type']);
       console.log('🔍 Body type:', typeof req.body);
 
-      let operation, records, table_name, client_id, field_id;
+      let operation, records, table_name, client_id, field_id, ver;
 
       // ✅ DETECTAR SI ES NDJSON
       if (req.headers['content-type'] === 'text/plain') {
@@ -45,12 +47,13 @@ class ItemsRoute {
         table_name = req.query.table_name;
         client_id = req.query.client_id;
         field_id = req.query.field_id;
+        ver = req.query.ver;
 
         console.log(`✅ NDJSON parseado: ${records.length} registros para ${client_id}`);
       } else {
         // JSON TRADICIONAL
         console.log('📦 Procesando JSON tradicional...');
-        ({ operation, records, table_name, client_id, field_id } = req.body);
+        ({ operation, records, table_name, client_id, field_id, ver } = req.body);
       }
 
       console.log('1️⃣ Parseo completado');
@@ -100,6 +103,7 @@ class ItemsRoute {
           table_name,
           client_id,
           field_id,
+          ver,
           received_at: new Date()
         }),
         new Promise((_, reject) => 
@@ -160,6 +164,151 @@ class ItemsRoute {
 
       res.status(statusCode).json(errorResponse);
       console.log(`✅ Respuesta de error enviada (${statusCode})`);
+    }
+  }
+
+  async getRecords(req, res) {
+    try {
+      console.log('🔍 [RECORDS] Headers:', req.headers['content-type']);
+      console.log('🔍 [RECORDS] Query params:', req.query);
+
+      // ✅ EXTRAER PARÁMETROS DEL QUERY
+      const { table, ver, field_id, client_id } = req.query;
+
+      // ✅ VALIDAR PARÁMETROS REQUERIDOS
+      if (!table) {
+        throw {
+          message: 'table es requerido',
+          statusCode: 400,
+          code: 'MISSING_TABLE'
+        };
+      }
+
+      if (!field_id) {
+        throw {
+          message: 'field_id es requerido',
+          statusCode: 400,
+          code: 'MISSING_FIELD_ID'
+        };
+      }
+
+      if (!client_id) {
+        throw {
+          message: 'client_id es requerido',
+          statusCode: 400,
+          code: 'MISSING_CLIENT_ID'
+        };
+      }
+
+      // ✅ PARSEAR NDJSON DEL BODY
+      let recordRequests = [];
+      
+      if (req.headers['content-type'] === 'text/plain') {
+        console.log('📦 [RECORDS] Procesando NDJSON...');
+        
+        const lines = req.body.trim().split('\n');
+        recordRequests = lines.map((line, index) => {
+          try {
+            const parsed = JSON.parse(line);
+            
+            // Validar que tenga el field_id dinámico e id_cola
+            if (!parsed[field_id]) {
+              throw new Error(`Línea ${index + 1}: ${field_id} es requerido`);
+            }
+            if (!parsed.id_cola) {
+              throw new Error(`Línea ${index + 1}: id_cola es requerido`);
+            }
+            
+            return parsed;
+          } catch (parseError) {
+            throw {
+              message: `Error parseando línea ${index + 1} NDJSON: ${parseError.message}`,
+              statusCode: 400,
+              code: 'INVALID_NDJSON'
+            };
+          }
+        });
+
+        console.log(`✅ [RECORDS] NDJSON parseado: ${recordRequests.length} registros`);
+      } else {
+        throw {
+          message: 'Content-Type debe ser text/plain para NDJSON',
+          statusCode: 400,
+          code: 'INVALID_CONTENT_TYPE'
+        };
+      }
+
+      // ✅ VALIDAR QUE HAYA REGISTROS
+      if (recordRequests.length === 0) {
+        throw {
+          message: 'No se enviaron registros para consultar',
+          statusCode: 400,
+          code: 'EMPTY_RECORDS'
+        };
+      }
+
+      console.log('✅ [RECORDS] Validaciones pasadas');
+      console.log('📊 [RECORDS] Datos recibidos:', {
+        table,
+        ver,
+        field_id,
+        client_id,
+        records_count: recordRequests.length
+      });
+
+      // ✅ CONSULTAR ESTADO DE LOS REGISTROS
+      console.log('🔍 [RECORDS] Consultando estado de registros...');
+      
+      const statusResults = await recordStatusService.checkRecordsStatus(
+        table,
+        field_id,
+        recordRequests,
+        client_id,
+        ver
+      );
+
+      console.log('✅ [RECORDS] Consulta completada');
+      console.log('📊 [RECORDS] Resultados:', {
+        total: statusResults.total_records,
+        completed: statusResults.records.filter(r => r.status === 'COMPLETED').length,
+        errors: statusResults.records.filter(r => r.status === 'ERROR').length,
+        not_found: statusResults.records.filter(r => r.status === 'NOT_FOUND').length
+      });
+
+      res.status(200).json(statusResults);
+      console.log('✅ [RECORDS] Respuesta enviada');
+
+    } catch (error) {
+      console.error('❌ [RECORDS] ERROR:', error.message);
+      
+      const statusCode = error.statusCode || 500;
+      const errorCode = error.code || 'INTERNAL_ERROR';
+      
+      const errorResponse = {
+        status: "error",
+        msg: error.message,
+        status_id: errorCode,
+        status_code: statusCode
+      };
+
+      if (statusCode >= 500) {
+        await logger.error('Error interno en getRecords', {
+          error: error.message,
+          code: errorCode,
+          statusCode: statusCode,
+          client: req.query?.client_id
+        });
+      } else {
+        await logger.warn('Error del cliente en getRecords', {
+          error: error.message,
+          code: errorCode,
+          statusCode: statusCode,
+          client: req.query?.client_id
+        });
+      }
+
+      res.status(statusCode).json(errorResponse);
+      console.log(`✅ [RECORDS] Respuesta de error enviada (${statusCode})`);
     }
   }
 }
