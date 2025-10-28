@@ -7,6 +7,8 @@ class ActivityTracker {
 
     // In-memory buffer for batching updates
     this.activityBuffer = new Map();
+    this.retryCount = new Map(); // Track retry attempts per client_id
+    this.maxDataRetries = 3; // Max retries for data validation errors
     this.flushInterval = 1000; // Flush every 1 second
     this.maxBufferSize = 100; // Flush when buffer reaches 100 entries
     this.isConnected = false;
@@ -46,9 +48,12 @@ class ActivityTracker {
   middleware() {
     return (req, res, next) => {
       // Check both query params (NDJSON) and body (JSON)
-      const clientId = req.query?.client_id || req.body?.client_id;
+      let clientId = req.query?.client_id || req.body?.client_id;
       
       if (clientId) {
+        // Truncate client_id to fit varchar(50) constraint
+        clientId = String(clientId).substring(0, 50);
+        
         // Add to buffer (non-blocking, instant)
         this.activityBuffer.set(clientId, Date.now());
         console.log(`📝 Added ${clientId} to buffer (size: ${this.activityBuffer.size})`);
@@ -108,7 +113,8 @@ class ActivityTracker {
         `($${idx + 1}, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)`
       ).join(', ');
       
-      const clientIds = entries.map(([clientId]) => clientId);
+      // Truncate all client_ids to fit varchar(50) constraint
+      const clientIds = entries.map(([clientId]) => String(clientId).substring(0, 50));
 
       const query = `
         INSERT INTO client_activity (client_id, last_seen, created_at)
@@ -119,6 +125,11 @@ class ActivityTracker {
 
       await client.query(query, clientIds);
       console.log(`✓ Flushed ${entries.length} client activities`);
+      
+      // Clear retry counts for successful entries
+      entries.forEach(([clientId]) => {
+        this.retryCount.delete(clientId);
+      });
     } catch (error) {
       console.error('Batch insert error:', error.message);
       console.error('Full error:', error);
@@ -130,10 +141,32 @@ class ActivityTracker {
         this.testConnection();
       }
       
-      // Re-add failed entries to buffer for retry
-      entries.forEach(([clientId, timestamp]) => {
-        this.activityBuffer.set(clientId, timestamp);
-      });
+      // Re-add failed entries to buffer for retry, but only if not a data validation error
+      const isDataValidationError = error.code === '22001' || // string too long
+                                     error.code === '22003' || // numeric out of range
+                                     error.code === '22P02';   // invalid text representation
+      
+      if (isDataValidationError) {
+        console.error('⚠ Data validation error detected. Entries will NOT be retried to prevent infinite loop.');
+        // Clear retry counts for these entries
+        entries.forEach(([clientId]) => {
+          this.retryCount.delete(clientId);
+        });
+      } else {
+        // Only retry for connection/transient errors
+        entries.forEach(([clientId, timestamp]) => {
+          const retries = (this.retryCount.get(clientId) || 0) + 1;
+          
+          if (retries <= this.maxDataRetries) {
+            this.activityBuffer.set(clientId, timestamp);
+            this.retryCount.set(clientId, retries);
+            console.log(`🔄 Retry ${retries}/${this.maxDataRetries} for client_id: ${clientId}`);
+          } else {
+            console.error(`❌ Max retries (${this.maxDataRetries}) reached for client_id: ${clientId}. Dropping entry.`);
+            this.retryCount.delete(clientId);
+          }
+        });
+      }
     } finally {
       if (client) {
         client.release();
