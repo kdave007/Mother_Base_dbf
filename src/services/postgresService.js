@@ -43,7 +43,8 @@ class PostgresService {
             operation,
             error: recordError,
             fieldId,
-            recordData: record
+            recordData: record,
+            ver
           });
           
           results.push({
@@ -218,7 +219,7 @@ class PostgresService {
   }
 
 
-  async saveToErrorTable({ tableName, recordId, clientId, operation, error, fieldId, recordData }) {
+  async saveToErrorTable({ tableName, recordId, clientId, operation, error, fieldId, recordData, ver }) {
     /**
      * use this method to insert or update on conflict errors when trying to make an operation to the main tables
      * this error table has the table name + errors, like, canota_errors, cunota_errors, xcorte_errors 
@@ -247,9 +248,9 @@ class PostgresService {
       
       const query = `
         INSERT INTO ${errorTableName} 
-        (record_id, client_id, operation, error_type, error_message, field_id, record_data, created_at)
-        VALUES ($1, $2, $3, $4, $5, $6, $7, CURRENT_TIMESTAMP)
-        ON CONFLICT (record_id, client_id) 
+        (record_id, client_id, operation, error_type, error_message, field_id, record_data, ver, created_at)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, CURRENT_TIMESTAMP)
+        ON CONFLICT (record_id, client_id, ver) 
         DO UPDATE SET 
           operation = EXCLUDED.operation,
           error_type = EXCLUDED.error_type,
@@ -266,7 +267,8 @@ class PostgresService {
         truncatedErrorType,
         errorMessage,
         truncatedFieldId,
-        recordData ? JSON.stringify(recordData) : null
+        recordData ? JSON.stringify(recordData) : null,
+        ver
       ]);
       
     } catch (saveError) {
