@@ -53,7 +53,7 @@ class RecordStatusService {
                 status: 'ERROR',
                 error_details: errorTableResult.error_message,
                 error_type: errorTableResult.error_type,
-                data: errorTableResult.record_data
+                data: null
               });
             } else {
               // 3. No encontrado en ninguna tabla - NOT_FOUND
