@@ -5,6 +5,7 @@ const queue = require('../workers/batchWorker');
 const logger = require('../utils/logger'); 
 const authMiddleware = require('../middleware/auth');
 const recordStatusService = require('../services/recordStatusService');
+const settingsService = require('../services/settingsService');
 
 class ItemsRoute {
   constructor(app) {
@@ -15,6 +16,7 @@ class ItemsRoute {
   registerRoutes() {
     this.app.post('/items', authMiddleware, this.createItem.bind(this));
     this.app.post('/records', authMiddleware, this.getRecords.bind(this));
+    this.app.post('/settings', authMiddleware, this.getSettings.bind(this));
   }
 
   async createItem(req, res) {
@@ -309,6 +311,96 @@ class ItemsRoute {
 
       res.status(statusCode).json(errorResponse);
       console.log(`✅ [RECORDS] Respuesta de error enviada (${statusCode})`);
+    }
+  }
+
+  async getSettings(req, res) {
+    try {
+      console.log('⚙️ [SETTINGS] Headers:', req.headers['content-type']);
+      console.log('⚙️ [SETTINGS] Body:', req.body);
+
+      // ✅ VALIDAR QUE SEA JSON
+      if (req.headers['content-type'] !== 'application/json') {
+        throw {
+          message: 'Content-Type debe ser application/json',
+          statusCode: 400,
+          code: 'INVALID_CONTENT_TYPE'
+        };
+      }
+
+      // ✅ EXTRAER client_id DEL BODY
+      const { client_id } = req.body;
+
+      // ✅ VALIDAR client_id
+      if (!client_id) {
+        throw {
+          message: 'client_id es requerido',
+          statusCode: 400,
+          code: 'MISSING_CLIENT_ID'
+        };
+      }
+
+      console.log('✅ [SETTINGS] Validaciones pasadas');
+      console.log('📊 [SETTINGS] client_id recibido:', client_id);
+
+      // ✅ OBTENER SETTINGS DEL CLIENTE
+      console.log('🔍 [SETTINGS] Consultando settings en base de datos...');
+      const settingsResult = await settingsService.getClientSettings(client_id);
+
+      if (!settingsResult.found) {
+        throw {
+          message: settingsResult.message,
+          statusCode: 404,
+          code: 'SETTINGS_NOT_FOUND'
+        };
+      }
+
+      console.log('✅ [SETTINGS] Settings encontrados:', settingsResult.count);
+
+      const response = {
+        status: "ok",
+        msg: "Settings obtenidos exitosamente",
+        status_id: "SETTINGS_OK",
+        client_id: settingsResult.client_id,
+        settings: settingsResult.settings,
+        count: settingsResult.count,
+        status_code: 200
+      };
+
+      res.status(200).json(response);
+      console.log('✅ [SETTINGS] Respuesta enviada');
+
+    } catch (error) {
+      console.error('❌ [SETTINGS] ERROR:', error.message);
+      
+      const statusCode = error.statusCode || 500;
+      const errorCode = error.code || 'INTERNAL_ERROR';
+      
+      const errorResponse = {
+        status: "error",
+        msg: error.message,
+        status_id: errorCode,
+        status_code: statusCode
+      };
+
+      if (statusCode >= 500) {
+        await logger.error('Error interno en getSettings', {
+          error: error.message,
+          code: errorCode,
+          statusCode: statusCode,
+          client: req.body?.client_id
+        });
+      } else {
+        await logger.warn('Error del cliente en getSettings', {
+          error: error.message,
+          code: errorCode,
+          statusCode: statusCode,
+          client: req.body?.client_id
+        });
+      }
+
+      res.status(statusCode).json(errorResponse);
+      console.log(`✅ [SETTINGS] Respuesta de error enviada (${statusCode})`);
     }
   }
 }
