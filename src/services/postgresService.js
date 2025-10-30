@@ -23,12 +23,12 @@ class PostgresService {
           } 
           else if (operation === 'update') {
             result = await this.updateSingleRecord(
-              client, record, tableName, clientId, fieldId, tableSchema
+              client, record, tableName, clientId, fieldId, tableSchema, ver
             );
           }
           else if (operation === 'delete') {
             result = await this.deleteSingleRecord(
-              client, record, tableName, clientId, fieldId, tableSchema
+              client, record, tableName, clientId, fieldId, tableSchema, ver
             );
           }
           
@@ -127,7 +127,7 @@ class PostgresService {
     };
   }
 
-  async updateSingleRecord(client, record, tableName, clientId, fieldId, tableSchema) {
+  async updateSingleRecord(client, record, tableName, clientId, fieldId, tableSchema, ver) {
     const { __meta, ...dbfFields } = record;
     
     const recordId = __meta?.[fieldId];
@@ -170,11 +170,19 @@ class PostgresService {
     }
     
     values.push(recordId);
+    paramCount++;
+    
+    values.push(clientId);
+    paramCount++;
+    
+    values.push(ver);
     
     const query = `
       UPDATE ${tableName.toLowerCase()} 
       SET ${setClauses.join(', ')}
-      WHERE _${fieldId} = $${paramCount}
+      WHERE _${fieldId} = $${paramCount - 2}
+        AND _client_id = $${paramCount - 1}
+        AND _ver = $${paramCount}
       RETURNING _${fieldId}, _updated_at
     `;
     
@@ -191,7 +199,7 @@ class PostgresService {
     };
   }
 
-  async deleteSingleRecord(client, record, tableName, clientId, fieldId, tableSchema) {
+  async deleteSingleRecord(client, record, tableName, clientId, fieldId, tableSchema, ver) {
     const { __meta } = record;
     
     const recordId = __meta?.[fieldId];
@@ -202,10 +210,12 @@ class PostgresService {
     const query = `
       DELETE FROM ${tableName.toLowerCase()} 
       WHERE _${fieldId} = $1
+        AND _client_id = $2
+        AND _ver = $3
       RETURNING _${fieldId}
     `;
     
-    const result = await client.query(query, [recordId]);
+    const result = await client.query(query, [recordId, clientId, ver]);
     
     if (result.rows.length === 0) {
       throw new Error(`Registro no encontrado para DELETE (_${fieldId}: ${recordId})`);
