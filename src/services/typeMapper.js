@@ -66,23 +66,45 @@ class TypeMapper {
       };
     }
   
-    convertValue(value, fieldMetadata) {
-      if (value === null || value === undefined || value === '') {
-        return fieldMetadata.nullable ? null : '';
-      }
-  
-      const typeConfig = this.typeMappings[fieldMetadata.type];
-      if (!typeConfig || !typeConfig.convert) {
-        return String(value); // Fallback a string
-      }
-  
-      try {
-        return typeConfig.convert(value, fieldMetadata.decimal_places);
-      } catch (error) {
-        console.warn(`Error convirtiendo campo ${fieldMetadata.name}:`, error);
-        return String(value); // Fallback seguro
-      }
+    /**
+   * Normaliza un valor para garantizar que nunca se devuelvan arreglos como [null].
+   * Convierte undefined, '' (cadena vacía), o [null] a null.
+   * @param {*} value - El valor a normalizar
+   * @returns {*} - El valor normalizado
+   */
+  normalizeValue(value) {
+    // Si es undefined o cadena vacía, retornar null
+    if (value === undefined || value === '') {
+      return null;
     }
+
+    // Si es un arreglo con un solo elemento null, retornar null
+    if (Array.isArray(value) && value.length === 1 && value[0] === null) {
+      return null;
+    }
+
+    // Retornar el valor tal cual
+    return value;
+  }
+
+  convertValue(value, fieldMetadata) {
+    if (value === null || value === undefined || value === '') {
+      return fieldMetadata.nullable ? null : '';
+    }
+
+    const typeConfig = this.typeMappings[fieldMetadata.type];
+    if (!typeConfig || !typeConfig.convert) {
+      return this.normalizeValue(String(value)); // Fallback a string normalizado
+    }
+
+    try {
+      const convertedValue = typeConfig.convert(value, fieldMetadata.decimal_places);
+      return this.normalizeValue(convertedValue);
+    } catch (error) {
+      console.warn(`Error convirtiendo campo ${fieldMetadata.name}:`, error);
+      return this.normalizeValue(String(value)); // Fallback seguro normalizado
+    }
+  }
   
     getPostgreSQLType(fieldMetadata) {
       const typeConfig = this.typeMappings[fieldMetadata.type];

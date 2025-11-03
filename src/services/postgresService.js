@@ -6,6 +6,27 @@ class PostgresService {
     this.typeMapper = new TypeMapper();
   }
 
+  /**
+   * Normaliza un valor para garantizar que nunca se procesen arreglos como [null].
+   * Convierte undefined, '' (cadena vacía), o [null] a null.
+   * @param {*} value - El valor a normalizar
+   * @returns {*} - El valor normalizado
+   */
+  normalizeValue(value) {
+    // Si es undefined o cadena vacía, retornar null
+    if (value === undefined || value === '') {
+      return null;
+    }
+
+    // Si es un arreglo con un solo elemento null, retornar null
+    if (Array.isArray(value) && value.length === 1 && value[0] === null) {
+      return null;
+    }
+
+    // Retornar el valor tal cual
+    return value;
+  }
+
   async saveRecords(records, tableName, clientId, fieldId, operation, tableSchema, job_id, ver) {
     const client = await pgPool.connect();
     const results = [];
@@ -73,7 +94,8 @@ class PostgresService {
     // Campos DBF
     for (const [fieldName, stringValue] of Object.entries(dbfFields)) {
       const fieldMetadata = tableSchema?.find(f => f.name === fieldName);
-      const convertedValue = this.typeMapper.convertValue(stringValue, fieldMetadata);
+      const normalizedValue = this.normalizeValue(stringValue);
+      const convertedValue = this.typeMapper.convertValue(normalizedValue, fieldMetadata);
       
       columns.push(fieldName.toLowerCase());
       values.push(convertedValue);
@@ -141,10 +163,11 @@ class PostgresService {
     
     // Campos DBF a actualizar (ignorar vacíos)
     for (const [fieldName, stringValue] of Object.entries(dbfFields)) {
-      if (stringValue === '' || stringValue === null || stringValue === undefined) continue;
+      const normalizedValue = this.normalizeValue(stringValue);
+      if (normalizedValue === null) continue;
       
       const fieldMetadata = tableSchema?.find(f => f.name === fieldName);
-      const convertedValue = this.typeMapper.convertValue(stringValue, fieldMetadata);
+      const convertedValue = this.typeMapper.convertValue(normalizedValue, fieldMetadata);
       
       setClauses.push(`${fieldName.toLowerCase()} = $${paramCount}`);
       values.push(convertedValue);
