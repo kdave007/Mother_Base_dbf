@@ -4,8 +4,8 @@ services:
     ports:
       - "3000:3000"
     environment:
-      - REDIS_HOST=redis           # ← Redis DENTRO de Docker
-      - PG_HOST=host.docker.internal  # ← PostgreSQL FUERA de Docker (tu máquina)
+      - REDIS_HOST=redis
+      - PG_HOST=host.docker.internal
       - PG_PORT=5432
       - PG_DATABASE=shadow_moses
       - PG_USER=postgres
@@ -13,11 +13,12 @@ services:
     depends_on:
       - redis
     volumes:
-      - ./logs:/app/logs  # ← Esto mapea ./logs local a /app/logs en el contenedor
+      - ./logs:/app/logs
     extra_hosts:
-      - "host.docker.internal:host-gateway"  # ← Magic para conectar al host
+      - "host.docker.internal:host-gateway"
 
   redis:
-    image: redis:7-alpine    # ← Redis SÍ en contenedor
+    image: redis:7-alpine
     ports:
       - "6379:6379"
+    command: redis-server --save "" --appendonly no --stop-writes-on-bgsave-error no
