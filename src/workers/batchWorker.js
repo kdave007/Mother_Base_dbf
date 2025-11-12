@@ -4,6 +4,29 @@ const schemaService = require('../services/schemaService');
 const logger = require('../utils/logger'); // ← Nuevo logger
 require('dotenv').config();
 
+// Helper para formatear fecha/hora en timezone de México
+function getMexicoCityTime() {
+  return new Date().toLocaleString('es-MX', {
+    timeZone: 'America/Mexico_City',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hour12: false
+  });
+}
+
+// Helper para formatear duración en formato legible
+function formatDuration(ms) {
+  if (ms < 1000) return `${ms}ms`;
+  if (ms < 60000) return `${(ms / 1000).toFixed(2)}s`;
+  const minutes = Math.floor(ms / 60000);
+  const seconds = ((ms % 60000) / 1000).toFixed(2);
+  return `${minutes}m ${seconds}s`;
+}
+
 const queue = new Queue('items-processing', {
   redis: { host:  process.env.REDIS_HOST, port: process.env.REDIS_PORT }
 });
@@ -11,14 +34,28 @@ const queue = new Queue('items-processing', {
 queue.process('process_batch', async (job) => {
   const { operation, records, table_name, client_id, field_id, ver } = job.data;
   
-  await logger.info('Iniciando procesamiento de batch', {
+  // Marcar inicio de procesamiento
+  const startTime = Date.now();
+  const startDateTime = getMexicoCityTime();
+  
+  await logger.info('🚀 Iniciando procesamiento de batch', {
     job_id: job.id,
     operation,
     table: table_name,
     client: client_id,
     records_count: records.length,
-    field_id
+    field_id,
+    start_time: startDateTime
   });
+  
+  console.log(`\n[${'='.repeat(60)}]`);
+  console.log(`🚀 JOB INICIADO - ${startDateTime}`);
+  console.log(`   Job ID: ${job.id}`);
+  console.log(`   Operación: ${operation}`);
+  console.log(`   Tabla: ${table_name}`);
+  console.log(`   Cliente: ${client_id}`);
+  console.log(`   Registros: ${records.length}`);
+  console.log(`[${'='.repeat(60)}]\n`);
 
   try {
     // 1. Cargar schema de la tabla
@@ -44,19 +81,38 @@ queue.process('process_batch', async (job) => {
       results = [{ status: 'error', error: `Operación no soportada: ${operation}` }];
     }
 
-    // 3. Calcular estadísticas
+    // 3. Calcular estadísticas y tiempo
+    const endTime = Date.now();
+    const endDateTime = getMexicoCityTime();
+    const duration = endTime - startTime;
+    const throughput = records.length / (duration / 1000); // registros por segundo
+    
     const successCount = results.filter(r => r.status === 'success').length;
     const errorCount = results.filter(r => r.status === 'error').length;
 
-    // 4. Log de resultados
-    await logger.info('Batch procesado', {
+    // 4. Log de resultados con timing
+    await logger.info('✅ Batch procesado exitosamente', {
       job_id: job.id,
       operation,
       table: table_name,
       success_count: successCount,
       error_count: errorCount,
-      total_records: records.length
+      total_records: records.length,
+      duration_ms: duration,
+      duration_formatted: formatDuration(duration),
+      throughput: `${throughput.toFixed(2)} rec/s`,
+      start_time: startDateTime,
+      end_time: endDateTime
     });
+    
+    console.log(`\n[${'='.repeat(60)}]`);
+    console.log(`✅ JOB COMPLETADO - ${endDateTime}`);
+    console.log(`   Job ID: ${job.id}`);
+    console.log(`   Duración: ${formatDuration(duration)}`);
+    console.log(`   Throughput: ${throughput.toFixed(2)} rec/s`);
+    console.log(`   Exitosos: ${successCount}/${records.length}`);
+    console.log(`   Errores: ${errorCount}/${records.length}`);
+    console.log(`[${'='.repeat(60)}]\n`);
 
     // 5. Log detallado de errores
     if (errorCount > 0) {
@@ -80,44 +136,77 @@ queue.process('process_batch', async (job) => {
     };
 
   } catch (error) {
-    await logger.error('Error procesando batch', {
+    const endTime = Date.now();
+    const endDateTime = getMexicoCityTime();
+    const duration = endTime - startTime;
+    
+    await logger.error('❌ Error procesando batch', {
       job_id: job.id,
       operation,
       table: table_name,
       error: error.message,
-      stack: error.stack
+      stack: error.stack,
+      duration_ms: duration,
+      duration_formatted: formatDuration(duration),
+      start_time: startDateTime,
+      end_time: endDateTime
     });
+    
+    console.log(`\n[${'='.repeat(60)}]`);
+    console.log(`❌ JOB FALLIDO - ${endDateTime}`);
+    console.log(`   Job ID: ${job.id}`);
+    console.log(`   Duración: ${formatDuration(duration)}`);
+    console.log(`   Error: ${error.message}`);
+    console.log(`[${'='.repeat(60)}]\n`);
+    
     throw error;
   }
 });
 
 // Eventos de la cola con logging
 queue.on('completed', async (job, result) => {
-  await logger.info('Batch completado exitosamente', {
+  const duration = job.finishedOn - job.processedOn;
+  const completedTime = getMexicoCityTime();
+  
+  await logger.info('🎉 Batch completado exitosamente', {
     job_id: job.id,
     table: result.table,
     operation: result.operation,
     success_count: result.saved_successfully,
     error_count: result.save_errors,
-    duration: job.finishedOn - job.processedOn
+    duration_ms: duration,
+    duration_formatted: formatDuration(duration),
+    completed_at: completedTime
   });
+  
+  console.log(`[${completedTime}] 🎉 Job ${job.id} completado - ${formatDuration(duration)}`);
 });
 
 queue.on('failed', async (job, error) => {
-  await logger.error('Batch fallido', {
+  const failedTime = getMexicoCityTime();
+  
+  await logger.error('💥 Batch fallido', {
     job_id: job.id,
     table: job.data.table_name,
     operation: job.data.operation,
     error: error.message,
-    attempts: job.attemptsMade
+    attempts: job.attemptsMade,
+    failed_at: failedTime
   });
+  
+  console.log(`[${failedTime}] 💥 Job ${job.id} fallido después de ${job.attemptsMade} intentos`);
 });
 
 queue.on('stalled', async (job) => {
-  await logger.warn('Job estancado', {
+  const stalledTime = getMexicoCityTime();
+  
+  await logger.warn('⚠️  Job estancado', {
     job_id: job.id,
-    table: job.data.table_name
+    table: job.data.table_name,
+    stalled_at: stalledTime
   });
+  
+  console.log(`[${stalledTime}] ⚠️  Job ${job.id} estancado`);
 });
 
 module.exports = queue;
