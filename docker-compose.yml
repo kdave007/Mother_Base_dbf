@@ -18,6 +18,7 @@ services:
       - "host.docker.internal:host-gateway"
 
   redis:
-    image: redis:7-alpine
+    image: redis:7-alpine    # ← Redis SÍ en contenedor
     ports:
       - "6379:6379"
+    command: redis-server --save "" --appendonly no --stop-writes-on-bgsave-error no

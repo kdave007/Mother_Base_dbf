@@ -1,9 +1,36 @@
 const pgPool = require('../db/database');
 const TypeMapper = require('./typeMapper');
+const operationsRepository = require('../repositories/operationsRepository');
 
 class PostgresService {
   constructor() {
     this.typeMapper = new TypeMapper();
+  }
+
+  /**
+   * Detecta si un error es de tipo duplicado (unique constraint violation)
+   */
+  isDuplicateError(error) {
+    if (!error) return false;
+    const errorMsg = (error.message || '').toLowerCase();
+    const errorCode = error.code;
+    return errorCode === '23505' || 
+           errorMsg.includes('duplicate') || 
+           errorMsg.includes('unique constraint') ||
+           errorMsg.includes('already exists');
+  }
+
+  /**
+   * Detecta si un error es de tipo "no encontrado" en operaciones DELETE
+   */
+  isNotFoundError(error, operation) {
+    if (!error || operation !== 'delete') return false;
+    const errorMsg = (error.message || '').toLowerCase();
+    return errorMsg.includes('no encontrado') || 
+           errorMsg.includes('not found') ||
+           errorMsg.includes('no existe') ||
+           errorMsg.includes('0 rows') ||
+           errorMsg.includes('does not exist');
   }
 
   /**
@@ -34,13 +61,13 @@ class PostgresService {
     try {
       // Intentar procesamiento por lotes primero
       if (operation === 'create') {
-        return await this.batchInsert(client, records, tableName, clientId, fieldId, tableSchema, ver);
+        return await this.batchInsert(client, records, tableName, clientId, fieldId, tableSchema, ver, job_id);
       } 
       else if (operation === 'update') {
-        return await this.batchUpdate(client, records, tableName, clientId, fieldId, tableSchema, ver);
+        return await this.batchUpdate(client, records, tableName, clientId, fieldId, tableSchema, ver, job_id);
       }
       else if (operation === 'delete') {
-        return await this.batchDelete(client, records, tableName, clientId, fieldId, ver);
+        return await this.batchDelete(client, records, tableName, clientId, fieldId, ver, job_id);
       }
       
       return results;
@@ -53,7 +80,7 @@ class PostgresService {
   /**
    * Procesa registros individualmente (fallback cuando falla el batch)
    */
-  async processSingleRecords(client, records, tableName, clientId, fieldId, operation, tableSchema, ver) {
+  async processSingleRecords(client, records, tableName, clientId, fieldId, operation, tableSchema, ver, job_id) {
     const results = [];
     
     for (const record of records) {
@@ -62,40 +89,58 @@ class PostgresService {
         
         if (operation === 'create') {
           result = await this.saveSingleRecord(
-            client, record, tableName, clientId, fieldId, tableSchema, ver
+            client, record, tableName, clientId, fieldId, tableSchema, ver, job_id
           );
         } 
         else if (operation === 'update') {
           result = await this.updateSingleRecord(
-            client, record, tableName, clientId, fieldId, tableSchema, ver
+            client, record, tableName, clientId, fieldId, tableSchema, ver, job_id
           );
         }
         else if (operation === 'delete') {
           result = await this.deleteSingleRecord(
-            client, record, tableName, clientId, fieldId, tableSchema, ver
+            client, record, tableName, clientId, fieldId, tableSchema, ver, job_id
           );
         }
         
         results.push(result);
         
       } catch (recordError) {
-        // Guardar error en tabla de errores
-        await this.saveToErrorTable({
+        const recordId = record.__meta?.[fieldId];
+        
+        // Determinar si es un caso especial (bypass)
+        const isDuplicate = this.isDuplicateError(recordError) && operation === 'create';
+        const isNotFound = this.isNotFoundError(recordError, operation);
+        const isSpecialCase = isDuplicate || isNotFound;
+        
+        // Guardar en tabla de operaciones
+        await operationsRepository.saveOperation({
           tableName,
-          recordId: record.__meta?.[fieldId],
+          recordId,
           clientId,
           operation,
-          error: recordError,
+          status: isSpecialCase ? 'COMPLETED' : 'ERROR',
+          error: isSpecialCase ? { message: isDuplicate ? 'Duplicate bypassed' : 'Delete not found bypassed' } : recordError,
           fieldId,
-          recordData: record,
-          ver
+          inputData: record,
+          batchVersion: ver,
+          batchId: job_id
         });
         
-        results.push({
-          record_id: record.__meta?.[fieldId],
-          status: 'error',
-          error: recordError.message
-        });
+        // Si es un caso especial, reportar como éxito
+        if (isSpecialCase) {
+          results.push({
+            record_id: recordId,
+            status: 'success',
+            note: isDuplicate ? 'Duplicate bypassed' : 'Delete not found bypassed'
+          });
+        } else {
+          results.push({
+            record_id: recordId,
+            status: 'error',
+            error: recordError.message
+          });
+        }
       }
     }
     
@@ -105,7 +150,7 @@ class PostgresService {
   /**
    * INSERT por lotes usando multi-value INSERT
    */
-  async batchInsert(client, records, tableName, clientId, fieldId, tableSchema, ver) {
+  async batchInsert(client, records, tableName, clientId, fieldId, tableSchema, ver, job_id) {
     if (records.length === 0) return [];
 
     try {
@@ -202,24 +247,45 @@ class PostgresService {
 
       const result = await client.query(query, allValues);
 
-      // Mapear resultados
-      return recordsData.map((data, idx) => ({
-        record_id: data.recordId,
-        status: 'success',
-        postgres_id: result.rows[idx]?.[`_${fieldId}`]
-      }));
+      // Registrar operaciones exitosas en _OPERATIONS
+      const results = [];
+      for (let idx = 0; idx < recordsData.length; idx++) {
+        const data = recordsData[idx];
+        const postgresId = result.rows[idx]?.[`_${fieldId}`];
+        
+        // Guardar operación exitosa
+        await operationsRepository.saveOperation({
+          tableName,
+          recordId: data.recordId,
+          clientId,
+          operation: 'CREATE',
+          status: 'COMPLETED',
+          fieldId,
+          inputData: data.record,
+          batchVersion: ver,
+          batchId: job_id
+        });
+        
+        results.push({
+          record_id: data.recordId,
+          status: 'success',
+          postgres_id: postgresId
+        });
+      }
+      
+      return results;
 
     } catch (batchError) {
       console.error('Error en batch INSERT, fallback a procesamiento individual:', batchError.message);
       // Fallback: procesar uno por uno
-      return await this.processSingleRecords(client, records, tableName, clientId, fieldId, 'create', tableSchema, ver);
+      return await this.processSingleRecords(client, records, tableName, clientId, fieldId, 'create', tableSchema, ver, job_id);
     }
   }
 
   /**
    * UPDATE por lotes usando CASE statements
    */
-  async batchUpdate(client, records, tableName, clientId, fieldId, tableSchema, ver) {
+  async batchUpdate(client, records, tableName, clientId, fieldId, tableSchema, ver, job_id) {
     if (records.length === 0) return [];
 
     try {
@@ -315,14 +381,43 @@ class PostgresService {
       const updatedIds = new Set(result.rows.map(r => r[`_${fieldId}`]));
       const results = [];
 
-      for (const { recordId } of recordsData) {
+      for (const { recordId, updateFields } of recordsData) {
+        const record = records.find(r => r.__meta?.[fieldId] === recordId);
+        
         if (updatedIds.has(recordId)) {
+          // Registro actualizado exitosamente
+          await operationsRepository.saveOperation({
+            tableName,
+            recordId,
+            clientId,
+            operation: 'UPDATE',
+            status: 'COMPLETED',
+            fieldId,
+            inputData: record,
+            batchVersion: ver,
+            batchId: job_id
+          });
+          
           results.push({
             record_id: recordId,
             status: 'success',
             postgres_id: recordId
           });
         } else {
+          // Registro no encontrado - registrar como ERROR
+          await operationsRepository.saveOperation({
+            tableName,
+            recordId,
+            clientId,
+            operation: 'UPDATE',
+            status: 'ERROR',
+            error: { message: 'Registro no encontrado para UPDATE' },
+            fieldId,
+            inputData: record,
+            batchVersion: ver,
+            batchId: job_id
+          });
+          
           results.push({
             record_id: recordId,
             status: 'error',
@@ -335,14 +430,14 @@ class PostgresService {
 
     } catch (batchError) {
       console.error('Error en batch UPDATE, fallback a procesamiento individual:', batchError.message);
-      return await this.processSingleRecords(client, records, tableName, clientId, fieldId, 'update', tableSchema, ver);
+      return await this.processSingleRecords(client, records, tableName, clientId, fieldId, 'update', tableSchema, ver, job_id);
     }
   }
 
   /**
    * DELETE por lotes usando WHERE IN
    */
-  async batchDelete(client, records, tableName, clientId, fieldId, ver) {
+  async batchDelete(client, records, tableName, clientId, fieldId, ver, job_id) {
     if (records.length === 0) return [];
 
     try {
@@ -380,17 +475,46 @@ class PostgresService {
       const results = [];
 
       for (const recordId of recordIds) {
+        const record = recordIdMap.get(recordId);
+        
         if (deletedIds.has(recordId)) {
+          // Registro eliminado exitosamente
+          await operationsRepository.saveOperation({
+            tableName,
+            recordId,
+            clientId,
+            operation: 'DELETE',
+            status: 'COMPLETED',
+            fieldId,
+            inputData: record,
+            batchVersion: ver,
+            batchId: job_id
+          });
+          
           results.push({
             record_id: recordId,
             status: 'success',
             postgres_id: recordId
           });
         } else {
+          // Registro no encontrado - caso especial (bypass)
+          await operationsRepository.saveOperation({
+            tableName,
+            recordId,
+            clientId,
+            operation: 'DELETE',
+            status: 'COMPLETED',
+            error: { message: 'Delete not found bypassed' },
+            fieldId,
+            inputData: record,
+            batchVersion: ver,
+            batchId: job_id
+          });
+          
           results.push({
             record_id: recordId,
-            status: 'error',
-            error: 'Registro no encontrado para DELETE'
+            status: 'success',
+            note: 'Delete not found bypassed'
           });
         }
       }
@@ -399,11 +523,11 @@ class PostgresService {
 
     } catch (batchError) {
       console.error('Error en batch DELETE, fallback a procesamiento individual:', batchError.message);
-      return await this.processSingleRecords(client, records, tableName, clientId, fieldId, 'delete', tableSchema, ver);
+      return await this.processSingleRecords(client, records, tableName, clientId, fieldId, 'delete', tableSchema, ver, job_id);
     }
   }
 
-  async saveSingleRecord(client, record, tableName, clientId, fieldId, tableSchema, ver) {
+  async saveSingleRecord(client, record, tableName, clientId, fieldId, tableSchema, ver, job_id) {
     const { __meta, ...dbfFields } = record;
     
     const columns = [];
@@ -461,15 +585,30 @@ class PostgresService {
     `;
     
     const result = await client.query(query, values);
+    const postgresId = result.rows[0]?.[`_${fieldId}`];
+    const recordId = __meta?.[fieldId];
+    
+    // Registrar operación exitosa
+    await operationsRepository.saveOperation({
+      tableName,
+      recordId,
+      clientId,
+      operation: 'CREATE',
+      status: 'COMPLETED',
+      fieldId,
+      inputData: record,
+      batchVersion: ver,
+      batchId: job_id
+    });
     
     return {
-      record_id: __meta?.[fieldId],
+      record_id: recordId,
       status: 'success',
-      postgres_id: result.rows[0]?.[`_${fieldId}`]
+      postgres_id: postgresId
     };
   }
 
-  async updateSingleRecord(client, record, tableName, clientId, fieldId, tableSchema, ver) {
+  async updateSingleRecord(client, record, tableName, clientId, fieldId, tableSchema, ver, job_id) {
     const { __meta, ...dbfFields } = record;
     
     const recordId = __meta?.[fieldId];
@@ -535,6 +674,19 @@ class PostgresService {
       throw new Error(`Registro no encontrado para UPDATE (_${fieldId}: ${recordId})`);
     }
     
+    // Registrar operación exitosa
+    await operationsRepository.saveOperation({
+      tableName,
+      recordId,
+      clientId,
+      operation: 'UPDATE',
+      status: 'COMPLETED',
+      fieldId,
+      inputData: record,
+      batchVersion: ver,
+      batchId: job_id
+    });
+    
     return {
       record_id: recordId,
       status: 'success',
@@ -542,7 +694,7 @@ class PostgresService {
     };
   }
 
-  async deleteSingleRecord(client, record, tableName, clientId, fieldId, tableSchema, ver) {
+  async deleteSingleRecord(client, record, tableName, clientId, fieldId, tableSchema, ver, job_id) {
     const { __meta } = record;
     
     const recordId = __meta?.[fieldId];
@@ -564,6 +716,19 @@ class PostgresService {
       throw new Error(`Registro no encontrado para DELETE (_${fieldId}: ${recordId})`);
     }
     
+    // Registrar operación exitosa
+    await operationsRepository.saveOperation({
+      tableName,
+      recordId,
+      clientId,
+      operation: 'DELETE',
+      status: 'COMPLETED',
+      fieldId,
+      inputData: record,
+      batchVersion: ver,
+      batchId: job_id
+    });
+    
     return {
       record_id: recordId,
       status: 'success',
@@ -572,65 +737,162 @@ class PostgresService {
   }
 
 
-  async saveToErrorTable({ tableName, recordId, clientId, operation, error, fieldId, recordData, ver }) {
-    /**
-     * use this method to insert or update on conflict errors when trying to make an operation to the main tables
-     * this error table has the table name + errors, like, canota_errors, cunota_errors, xcorte_errors 
-     * with this structrue :
-     * - recordId
-      - clientId  
-      - operation
-      - error
-      - fieldId
-      - recordData (opcional)
-     * 
-     */
-    
+  /**
+   * Get record status with CORRECTED logic:
+   * 1. Check _OPERATIONS table FIRST (source of truth for operation status)
+   *    - QUEUED/PROCESSING → PROCESSING
+   *    - ERROR → ERROR (except special bypass cases)
+   *    - COMPLETED → COMPLETED (verify main table for data)
+   * 2. If no operation found, check main table (resync/legacy records)
+   * 3. If not in either table → NOT_FOUND
+   */
+  async getRecordStatus(tableName, recordId, clientId, fieldId, ver) {
     const client = await pgPool.connect();
     
     try {
-      const errorTableName = `${tableName.toLowerCase()}_errors`;
-      const errorMessage = error.message || String(error);
-      const errorType = error.name || 'Error';
+      // 1. PRIMERO: Buscar en tabla de operaciones (fuente de verdad)
+      const op = await operationsRepository.findOperationByRecord(tableName, recordId, clientId, ver);
       
-      // Truncar valores para ajustarse a los límites de la tabla
-      const truncatedClientId = clientId ? String(clientId).substring(0, 50) : null;
-      const truncatedOperation = operation ? String(operation).substring(0, 20) : null;
-      const truncatedErrorType = errorType.substring(0, 50);
-      const truncatedFieldId = fieldId ? String(fieldId).substring(0, 50) : null;
+      if (op) {
+        const { operation, status, error_message } = op;
+        
+        // QUEUED o PROCESSING → Status: PROCESSING
+        if (status === 'QUEUED' || status === 'PROCESSING') {
+          return {
+            record_id: recordId,
+            status: 'PROCESSING',
+            source: 'operations_table',
+            note: `Operation ${operation} is ${status}`,
+            data: null
+          };
+        }
+        
+        // ERROR → Status: ERROR (excepto casos especiales)
+        if (status === 'ERROR') {
+          // Verificar si es un caso especial que debe reportarse como COMPLETED
+          const isDuplicateBypass = operation === 'CREATE' && 
+            error_message && 
+            (error_message.includes('Duplicate bypassed') || 
+             error_message.includes('duplicate') ||
+             error_message.includes('already exists'));
+          
+          const isDeleteNotFoundBypass = operation === 'DELETE' && 
+            error_message && 
+            (error_message.includes('Delete not found bypassed') ||
+             error_message.includes('not found') ||
+             error_message.includes('no encontrado'));
+          
+          if (isDuplicateBypass || isDeleteNotFoundBypass) {
+            return {
+              record_id: recordId,
+              status: 'COMPLETED',
+              source: 'operations_table',
+              note: isDuplicateBypass ? 'Duplicate bypassed' : 'Delete not found bypassed',
+              data: null
+            };
+          } else {
+            // Error real
+            return {
+              record_id: recordId,
+              status: 'ERROR',
+              source: 'operations_table',
+              error_message: error_message,
+              data: null
+            };
+          }
+        }
+        
+        // COMPLETED → Verificar en tabla principal para obtener datos
+        if (status === 'COMPLETED') {
+          // Para DELETE COMPLETED, no buscar en tabla principal
+          if (operation === 'DELETE') {
+            return {
+              record_id: recordId,
+              status: 'COMPLETED',
+              source: 'operations_table',
+              note: 'Record was deleted',
+              data: null
+            };
+          } else {
+            // Para CREATE/UPDATE COMPLETED, verificar tabla principal y validar consistencia
+            const mainTableQuery = `
+              SELECT _${fieldId}, _server_id, _ver, _deleted
+              FROM ${tableName.toLowerCase()}
+              WHERE _${fieldId} = $1 
+                AND _client_id = $2
+                AND _ver = $3
+              LIMIT 1
+            `;
+            
+            const mainResult = await client.query(mainTableQuery, [recordId, clientId, ver]);
+            
+            if (mainResult.rows.length === 0) {
+              // INCONSISTENCIA DETECTADA: marcado como COMPLETED pero no existe
+              return {
+                record_id: recordId,
+                status: 'ERROR',
+                source: 'operations_table',
+                error_message: `Operation ${operation} marked as COMPLETED but record not found in main table. Possible causes: manual deletion, transaction rollback, or database inconsistency.`,
+                data: null
+              };
+            } else {
+              // COMPLETED VÁLIDO: operación exitosa y registro existe
+              return {
+                record_id: recordId,
+                status: 'COMPLETED',
+                source: 'operations_table',
+                data: mainResult.rows[0]
+              };
+            }
+          }
+        }
+        
+        // Cualquier otro status
+        return {
+          record_id: recordId,
+          status: 'NOT_FOUND',
+          source: 'operations_table',
+          note: `Unknown operation status: ${status}`,
+          data: null
+        };
+      }
       
-      const query = `
-        INSERT INTO ${errorTableName} 
-        (record_id, client_id, operation, error_type, error_message, field_id, record_data, ver, created_at)
-        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, CURRENT_TIMESTAMP)
-        ON CONFLICT (record_id, client_id, ver) 
-        DO UPDATE SET 
-          operation = EXCLUDED.operation,
-          error_type = EXCLUDED.error_type,
-          error_message = EXCLUDED.error_message,
-          field_id = EXCLUDED.field_id,
-          record_data = EXCLUDED.record_data,
-          created_at = CURRENT_TIMESTAMP
+      // 2. SEGUNDO: Si no hay operación registrada, buscar en tabla principal
+      const mainTableQuery = `
+        SELECT _${fieldId}, _server_id, _ver, _deleted
+        FROM ${tableName.toLowerCase()}
+        WHERE _${fieldId} = $1 
+          AND _client_id = $2
+          AND _ver = $3
+        LIMIT 1
       `;
       
-      await client.query(query, [
-        recordId,
-        truncatedClientId,
-        truncatedOperation,
-        truncatedErrorType,
-        errorMessage,
-        truncatedFieldId,
-        recordData ? JSON.stringify(recordData) : null,
-        ver
-      ]);
+      const mainResult = await client.query(mainTableQuery, [recordId, clientId, ver]);
       
-    } catch (saveError) {
-      console.error('Error al guardar en tabla de errores:', saveError);
-      // No lanzamos el error para no interrumpir el flujo principal
+      if (mainResult.rows.length > 0) {
+        // Operations faltante pero registro existe - ERROR para forzar reenvío
+        return {
+          record_id: recordId,
+          status: 'ERROR',
+          source: 'main_table',
+          error_message: 'Operation record missing but data exists in main table - please resend to recreate operation history',
+          data: null
+        };
+      }
+      
+      // 3. No encontrado en ninguna tabla
+      return {
+        record_id: recordId,
+        status: 'NOT_FOUND',
+        source: 'none',
+        data: null
+      };
+      
     } finally {
       client.release();
     }
   }
+
 
 
 }
