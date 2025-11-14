@@ -16,7 +16,8 @@ class TypeMapper {
           "convert": (value, decimal_places = 0) => {
             if (!value || value === '') return null;
             const num = parseFloat(value);
-            return isNaN(num) ? null : Number(num.toFixed(decimal_places));
+            // Preserve the full decimal value as sent by the client; do not round/truncate
+            return isNaN(num) ? null : num;
           }
         },
         "F": {
@@ -27,7 +28,8 @@ class TypeMapper {
           "convert": (value, decimal_places = 0) => {
             if (!value || value === '') return null;
             const num = parseFloat(value);
-            return isNaN(num) ? null : Number(num.toFixed(decimal_places));
+            // Preserve the full decimal value as sent by the client; do not round/truncate
+            return isNaN(num) ? null : num;
           }
         },
         "D": {

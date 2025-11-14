@@ -67,7 +67,7 @@ class PostgresService {
         return await this.batchUpdate(client, records, tableName, clientId, fieldId, tableSchema, ver, job_id);
       }
       else if (operation === 'delete') {
-        return await this.batchDelete(client, records, tableName, clientId, fieldId, ver, job_id);
+        return await this.batchDelete(client, records, tableName, clientId, fieldId, tableSchema, ver, job_id);
       }
       
       return results;
@@ -437,7 +437,7 @@ class PostgresService {
   /**
    * DELETE por lotes usando WHERE IN
    */
-  async batchDelete(client, records, tableName, clientId, fieldId, ver, job_id) {
+  async batchDelete(client, records, tableName, clientId, fieldId, tableSchema, ver, job_id) {
     if (records.length === 0) return [];
 
     try {

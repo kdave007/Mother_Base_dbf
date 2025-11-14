@@ -58,12 +58,19 @@ class RecordStatusService {
                  error_message.includes('no encontrado'));
               
               if (isDuplicateBypass || isDeleteNotFoundBypass) {
-                results.push({
+                const response = {
                   [fieldId]: recordId,
                   status: 'COMPLETED',
                   note: isDuplicateBypass ? 'Duplicate bypassed' : 'Delete not found bypassed',
                   data: null
-                });
+                };
+                
+                // Add _deleted for DELETE operations
+                if (isDeleteNotFoundBypass) {
+                  response._deleted = 1;
+                }
+                
+                results.push(response);
               } else {
                 // Error real
                 results.push({
@@ -82,6 +89,7 @@ class RecordStatusService {
                   [fieldId]: recordId,
                   status: 'COMPLETED',
                   note: 'Record was deleted',
+                  _deleted: 1,
                   data: null
                 });
               } else {
