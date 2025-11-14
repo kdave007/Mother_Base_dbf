@@ -1,0 +1,24 @@
+services:
+  api:
+    build: .
+    ports:
+      - "3000:3000"
+    environment:
+      - REDIS_HOST=redis
+      - PG_HOST=217.154.198.75 # ← PostgreSQL FUERA de Docker (tu máquina)
+      - PG_PORT=5432
+      - PG_DATABASE=shadow_moses
+      - PG_USER=postgres
+      - PG_PASSWORD=comexcare
+    depends_on:
+      - redis
+    volumes:
+      - ./logs:/app/logs
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  redis:
+    image: redis:7-alpine    # ← Redis SÍ en contenedor
+    ports:
+      - "6379:6379"
+    command: redis-server --save "" --appendonly no --stop-writes-on-bgsave-error no
