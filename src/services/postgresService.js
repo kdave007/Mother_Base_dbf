@@ -1,11 +1,18 @@
 const pgPool = require('../db/database');
 const TypeMapper = require('./typeMapper');
 const operationsRepository = require('../repositories/operationsRepository');
+const logger = require('../utils/logger');
 
 class PostgresService {
   constructor() {
     this.typeMapper = new TypeMapper();
   }
+
+  // Contadores de ventana para benchmarks periódicos de saveRecords
+  static benchmarkWindowStartTime = Date.now();
+  static benchmarkWindowCalls = 0;
+  static benchmarkWindowDurationMs = 0;
+  static benchmarkWindowRecords = 0;
 
   /**
    * Detecta si un error es de tipo duplicado (unique constraint violation)
@@ -57,6 +64,7 @@ class PostgresService {
   async saveRecords(records, tableName, clientId, fieldId, operation, tableSchema, job_id, ver) {
     const client = await pgPool.connect();
     const results = [];
+    const startTime = Date.now();
     
     try {
       // Intentar procesamiento por lotes primero
@@ -73,6 +81,12 @@ class PostgresService {
       return results;
       
     } finally {
+      const duration = Date.now() - startTime;
+      PostgresService.benchmarkWindowCalls += 1;
+      PostgresService.benchmarkWindowDurationMs += duration;
+      if (Array.isArray(records)) {
+        PostgresService.benchmarkWindowRecords += records.length;
+      }
       client.release();
     }
   }
@@ -247,14 +261,15 @@ class PostgresService {
 
       const result = await client.query(query, allValues);
 
-      // Registrar operaciones exitosas en _OPERATIONS
+      // Registrar operaciones exitosas en _OPERATIONS mediante batch
       const results = [];
+      const operations = [];
+
       for (let idx = 0; idx < recordsData.length; idx++) {
         const data = recordsData[idx];
         const postgresId = result.rows[idx]?.[`_${fieldId}`];
-        
-        // Guardar operación exitosa
-        await operationsRepository.saveOperation({
+
+        operations.push({
           tableName,
           recordId: data.recordId,
           clientId,
@@ -265,14 +280,16 @@ class PostgresService {
           batchVersion: ver,
           batchId: job_id
         });
-        
+
         results.push({
           record_id: data.recordId,
           status: 'success',
           postgres_id: postgresId
         });
       }
-      
+
+      await operationsRepository.saveOperationsBatch(operations);
+
       return results;
 
     } catch (batchError) {
@@ -374,19 +391,24 @@ class PostgresService {
           AND _ver = $${paramCount + 1}
         RETURNING _${fieldId}, _updated_at
       `;
+      // console.log('batchUpdate query:', query);
+      // console.log('batchUpdate params:', allValues);
 
       const result = await client.query(query, allValues);
+
+      // console.log('batchUpdate result rows:', result.rows);
 
       // Verificar que todos los registros se actualizaron
       const updatedIds = new Set(result.rows.map(r => r[`_${fieldId}`]));
       const results = [];
+      const operations = [];
 
       for (const { recordId, updateFields } of recordsData) {
         const record = records.find(r => r.__meta?.[fieldId] === recordId);
         
         if (updatedIds.has(recordId)) {
           // Registro actualizado exitosamente
-          await operationsRepository.saveOperation({
+          operations.push({
             tableName,
             recordId,
             clientId,
@@ -405,7 +427,7 @@ class PostgresService {
           });
         } else {
           // Registro no encontrado - registrar como ERROR
-          await operationsRepository.saveOperation({
+          operations.push({
             tableName,
             recordId,
             clientId,
@@ -425,6 +447,8 @@ class PostgresService {
           });
         }
       }
+
+      await operationsRepository.saveOperationsBatch(operations);
 
       return results;
 
@@ -473,13 +497,14 @@ class PostgresService {
       // Verificar qué registros se eliminaron
       const deletedIds = new Set(result.rows.map(r => r[`_${fieldId}`]));
       const results = [];
+      const operations = [];
 
       for (const recordId of recordIds) {
         const record = recordIdMap.get(recordId);
         
         if (deletedIds.has(recordId)) {
           // Registro eliminado exitosamente
-          await operationsRepository.saveOperation({
+          operations.push({
             tableName,
             recordId,
             clientId,
@@ -498,7 +523,7 @@ class PostgresService {
           });
         } else {
           // Registro no encontrado - caso especial (bypass)
-          await operationsRepository.saveOperation({
+          operations.push({
             tableName,
             recordId,
             clientId,
@@ -518,6 +543,8 @@ class PostgresService {
           });
         }
       }
+
+      await operationsRepository.saveOperationsBatch(operations);
 
       return results;
 
@@ -892,9 +919,34 @@ class PostgresService {
       client.release();
     }
   }
-
-
-
 }
+
+// Benchmark periódico por ventana de tiempo para PostgresService.saveRecords (ej. cada 60s)
+const POSTGRES_BENCHMARK_WINDOW_MS = 180000; // 60 segundos
+setInterval(async () => {
+  const now = Date.now();
+  const windowLengthMs = now - PostgresService.benchmarkWindowStartTime;
+  const windowLengthSec = windowLengthMs / 1000;
+
+  if (PostgresService.benchmarkWindowCalls > 0 && windowLengthSec > 0) {
+    const avgCallTimeMs = PostgresService.benchmarkWindowDurationMs / PostgresService.benchmarkWindowCalls;
+    const overallThroughput = PostgresService.benchmarkWindowRecords / windowLengthSec;
+
+    await logger.info('📊 Ventana de benchmark de PostgresService.saveRecords', {
+      window_seconds: windowLengthSec,
+      calls: PostgresService.benchmarkWindowCalls,
+      total_call_time_ms: PostgresService.benchmarkWindowDurationMs,
+      avg_call_time_ms: avgCallTimeMs,
+      total_records: PostgresService.benchmarkWindowRecords,
+      overall_throughput: `${overallThroughput.toFixed(2)} rec/s`
+    });
+  }
+
+  // Reiniciar ventana
+  PostgresService.benchmarkWindowStartTime = now;
+  PostgresService.benchmarkWindowCalls = 0;
+  PostgresService.benchmarkWindowDurationMs = 0;
+  PostgresService.benchmarkWindowRecords = 0;
+}, POSTGRES_BENCHMARK_WINDOW_MS);
 
 module.exports = new PostgresService();

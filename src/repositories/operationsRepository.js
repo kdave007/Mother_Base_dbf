@@ -74,6 +74,75 @@ class OperationsRepository {
     }
   }
 
+  async saveOperationsBatch(operations) {
+    if (!operations || operations.length === 0) return;
+
+    const client = await pgPool.connect();
+    
+    try {
+      const first = operations[0];
+      const operationsTableName = `${first.tableName.toLowerCase()}_operations`;
+
+      const values = [];
+      const rowsPlaceholders = [];
+      let paramIndex = 1;
+
+      for (const op of operations) {
+        const errorMessage = op.error ? (op.error.message || String(op.error)) : null;
+
+        const truncatedClientId = op.clientId ? String(op.clientId).substring(0, 100) : null;
+        const truncatedRecordId = op.recordId ? String(op.recordId).substring(0, 100) : null;
+        const truncatedOperation = op.operation ? String(op.operation).toUpperCase().substring(0, 10) : null;
+        const truncatedStatus = op.status ? String(op.status).toUpperCase().substring(0, 20) : 'ERROR';
+        const truncatedFieldId = op.fieldId ? String(op.fieldId).substring(0, 50) : null;
+        const truncatedBatchVersion = op.batchVersion ? String(op.batchVersion).substring(0, 100) : null;
+        const truncatedBatchId = op.batchId ? String(op.batchId).substring(0, 100) : null;
+
+        const rowPlaceholders = [];
+        for (let i = 0; i < 9; i++) {
+          rowPlaceholders.push(`$${paramIndex++}`);
+        }
+
+        rowsPlaceholders.push(`(${rowPlaceholders.join(', ')}, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)`);
+
+        values.push(
+          truncatedClientId,
+          truncatedRecordId,
+          truncatedBatchVersion,
+          truncatedFieldId,
+          truncatedOperation,
+          truncatedStatus,
+          errorMessage,
+          op.inputData ? JSON.stringify(op.inputData) : null,
+          truncatedBatchId
+        );
+      }
+
+      const query = `
+        INSERT INTO ${operationsTableName} 
+        (client_id, record_id, batch_version, field_id, operation, status, error_message, 
+         input_data, batch_id, created_at, processed_at)
+        VALUES ${rowsPlaceholders.join(', ')}
+        ON CONFLICT (client_id, batch_version, record_id) 
+        DO UPDATE SET 
+          field_id = EXCLUDED.field_id,
+          operation = EXCLUDED.operation,
+          status = EXCLUDED.status,
+          error_message = EXCLUDED.error_message,
+          input_data = EXCLUDED.input_data,
+          batch_id = EXCLUDED.batch_id,
+          processed_at = CURRENT_TIMESTAMP
+      `;
+
+      await client.query(query, values);
+
+    } catch (saveError) {
+      console.error('Error al guardar batch en tabla de operaciones:', saveError);
+    } finally {
+      client.release();
+    }
+  }
+
   /**
    * Find the most recent operation for a record
    * @param {string} tableName - Name of the main table

@@ -27,6 +27,12 @@ function formatDuration(ms) {
   return `${minutes}m ${seconds}s`;
 }
 
+// Contadores de ventana para benchmarks periódicos
+let windowStartTime = Date.now();
+let windowJobs = 0;
+let windowDurationMs = 0;
+let windowRecords = 0;
+
 const queue = new Queue('items-processing', {
   redis: { host:  process.env.REDIS_HOST, port: process.env.REDIS_PORT }
 });
@@ -163,6 +169,34 @@ queue.process('process_batch', async (job) => {
   }
 });
 
+// Benchmark periódico por ventana de tiempo (ej. cada 60s)
+const BENCHMARK_WINDOW_MS = 180000; // 60 segundos
+setInterval(async () => {
+  const now = Date.now();
+  const windowLengthMs = now - windowStartTime;
+  const windowLengthSec = windowLengthMs / 1000;
+  
+  if (windowJobs > 0 && windowLengthSec > 0) {
+    const avgJobTimeMs = windowDurationMs / windowJobs;
+    const overallThroughput = windowRecords / windowLengthSec;
+    
+    await logger.info('📊 Ventana de benchmark de jobs', {
+      window_seconds: windowLengthSec,
+      jobs: windowJobs,
+      total_job_time_ms: windowDurationMs,
+      avg_job_time_ms: avgJobTimeMs,
+      total_records: windowRecords,
+      overall_throughput: `${overallThroughput.toFixed(2)} rec/s`
+    });
+  }
+  
+  // Reiniciar ventana
+  windowStartTime = now;
+  windowJobs = 0;
+  windowDurationMs = 0;
+  windowRecords = 0;
+}, BENCHMARK_WINDOW_MS);
+
 // Eventos de la cola con logging
 queue.on('completed', async (job, result) => {
   const duration = job.finishedOn - job.processedOn;
@@ -180,6 +214,13 @@ queue.on('completed', async (job, result) => {
   });
   
   console.log(`[${completedTime}] 🎉 Job ${job.id} completado - ${formatDuration(duration)}`);
+  
+  // Actualizar contadores de ventana para benchmarks
+  windowJobs += 1;
+  windowDurationMs += duration;
+  if (result && typeof result.records_processed === 'number') {
+    windowRecords += result.records_processed;
+  }
 });
 
 queue.on('failed', async (job, error) => {
