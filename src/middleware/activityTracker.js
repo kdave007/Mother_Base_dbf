@@ -87,7 +87,10 @@ class ActivityTracker {
 
     // Skip if not connected
     if (!this.isConnected) {
-      console.warn('⚠ Activity Tracker: Skipping flush - not connected to database');
+      console.warn('⚠ Activity Tracker: Dropping buffer - not connected to database');
+      // Drop all buffered entries and retry counts to avoid infinite retry loops
+      this.activityBuffer.clear();
+      this.retryCount.clear();
       return;
     }
 
