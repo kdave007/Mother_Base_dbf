@@ -8,11 +8,11 @@ class PostgresService {
     this.typeMapper = new TypeMapper();
   }
 
-  // Contadores de ventana para benchmarks periódicos de saveRecords
-  static benchmarkWindowStartTime = Date.now();
-  static benchmarkWindowCalls = 0;
-  static benchmarkWindowDurationMs = 0;
-  static benchmarkWindowRecords = 0;
+  // // Contadores de ventana para benchmarks periódicos de saveRecords (deshabilitados)
+  // static benchmarkWindowStartTime = Date.now();
+  // static benchmarkWindowCalls = 0;
+  // static benchmarkWindowDurationMs = 0;
+  // static benchmarkWindowRecords = 0;
 
   /**
    * Detecta si un error es de tipo duplicado (unique constraint violation)
@@ -82,11 +82,11 @@ class PostgresService {
       
     } finally {
       const duration = Date.now() - startTime;
-      PostgresService.benchmarkWindowCalls += 1;
-      PostgresService.benchmarkWindowDurationMs += duration;
-      if (Array.isArray(records)) {
-        PostgresService.benchmarkWindowRecords += records.length;
-      }
+      // PostgresService.benchmarkWindowCalls += 1;
+      // PostgresService.benchmarkWindowDurationMs += duration;
+      // if (Array.isArray(records)) {
+      //   PostgresService.benchmarkWindowRecords += records.length;
+      // }
       client.release();
     }
   }
@@ -921,32 +921,32 @@ class PostgresService {
   }
 }
 
-// Benchmark periódico por ventana de tiempo para PostgresService.saveRecords (ej. cada 60s)
-const POSTGRES_BENCHMARK_WINDOW_MS = 180000; // 60 segundos
-setInterval(async () => {
-  const now = Date.now();
-  const windowLengthMs = now - PostgresService.benchmarkWindowStartTime;
-  const windowLengthSec = windowLengthMs / 1000;
-
-  if (PostgresService.benchmarkWindowCalls > 0 && windowLengthSec > 0) {
-    const avgCallTimeMs = PostgresService.benchmarkWindowDurationMs / PostgresService.benchmarkWindowCalls;
-    const overallThroughput = PostgresService.benchmarkWindowRecords / windowLengthSec;
-
-    await logger.info('📊 Ventana de benchmark de PostgresService.saveRecords', {
-      window_seconds: windowLengthSec,
-      calls: PostgresService.benchmarkWindowCalls,
-      total_call_time_ms: PostgresService.benchmarkWindowDurationMs,
-      avg_call_time_ms: avgCallTimeMs,
-      total_records: PostgresService.benchmarkWindowRecords,
-      overall_throughput: `${overallThroughput.toFixed(2)} rec/s`
-    });
-  }
-
-  // Reiniciar ventana
-  PostgresService.benchmarkWindowStartTime = now;
-  PostgresService.benchmarkWindowCalls = 0;
-  PostgresService.benchmarkWindowDurationMs = 0;
-  PostgresService.benchmarkWindowRecords = 0;
-}, POSTGRES_BENCHMARK_WINDOW_MS);
+// // Benchmark periódico por ventana de tiempo para PostgresService.saveRecords (deshabilitado)
+// const POSTGRES_BENCHMARK_WINDOW_MS = 600000; // 60 segundos
+// setInterval(async () => {
+//   const now = Date.now();
+//   const windowLengthMs = now - PostgresService.benchmarkWindowStartTime;
+//   const windowLengthSec = windowLengthMs / 1000;
+// 
+//   if (PostgresService.benchmarkWindowCalls > 0 && windowLengthSec > 0) {
+//     const avgCallTimeMs = PostgresService.benchmarkWindowDurationMs / PostgresService.benchmarkWindowCalls;
+//     const overallThroughput = PostgresService.benchmarkWindowRecords / windowLengthSec;
+// 
+//     await logger.info('📊 Ventana de benchmark de PostgresService.saveRecords', {
+//       window_seconds: windowLengthSec,
+//       calls: PostgresService.benchmarkWindowCalls,
+//       total_call_time_ms: PostgresService.benchmarkWindowDurationMs,
+//       avg_call_time_ms: avgCallTimeMs,
+//       total_records: PostgresService.benchmarkWindowRecords,
+//       overall_throughput: `${overallThroughput.toFixed(2)} rec/s`
+//     });
+//   }
+// 
+//   // Reiniciar ventana
+//   PostgresService.benchmarkWindowStartTime = now;
+//   PostgresService.benchmarkWindowCalls = 0;
+//   PostgresService.benchmarkWindowDurationMs = 0;
+//   PostgresService.benchmarkWindowRecords = 0;
+// }, POSTGRES_BENCHMARK_WINDOW_MS);
 
 module.exports = new PostgresService();

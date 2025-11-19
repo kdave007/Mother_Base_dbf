@@ -3,11 +3,11 @@ const operationsRepository = require('../repositories/operationsRepository');
 const logger = require('../utils/logger');
 
 class RecordStatusService {
-  // Contadores de ventana para benchmarks periódicos de checkRecordsStatus
-  static benchmarkWindowStartTime = Date.now();
-  static benchmarkWindowCalls = 0;
-  static benchmarkWindowDurationMs = 0;
-  static benchmarkWindowRecords = 0;
+  // // Contadores de ventana para benchmarks periódicos de checkRecordsStatus (deshabilitados)
+  // static benchmarkWindowStartTime = Date.now();
+  // static benchmarkWindowCalls = 0;
+  // static benchmarkWindowDurationMs = 0;
+  // static benchmarkWindowRecords = 0;
 
   /**
    * Checks the status of records in the main table and error table
@@ -189,11 +189,11 @@ class RecordStatusService {
       
     } finally {
       const duration = Date.now() - startTime;
-      RecordStatusService.benchmarkWindowCalls += 1;
-      RecordStatusService.benchmarkWindowDurationMs += duration;
-      if (Array.isArray(recordRequests)) {
-        RecordStatusService.benchmarkWindowRecords += recordRequests.length;
-      }
+      // RecordStatusService.benchmarkWindowCalls += 1;
+      // RecordStatusService.benchmarkWindowDurationMs += duration;
+      // if (Array.isArray(recordRequests)) {
+      //   RecordStatusService.benchmarkWindowRecords += recordRequests.length;
+      // }
       client.release();
     }
   }
@@ -230,32 +230,32 @@ class RecordStatusService {
   
 }
 
-// Benchmark periódico por ventana de tiempo para RecordStatusService.checkRecordsStatus (ej. cada 60s)
-const RECORD_STATUS_BENCHMARK_WINDOW_MS = 60000; // 60 segundos
-setInterval(async () => {
-  const now = Date.now();
-  const windowLengthMs = now - RecordStatusService.benchmarkWindowStartTime;
-  const windowLengthSec = windowLengthMs / 1000;
-
-  if (RecordStatusService.benchmarkWindowCalls > 0 && windowLengthSec > 0) {
-    const avgCallTimeMs = RecordStatusService.benchmarkWindowDurationMs / RecordStatusService.benchmarkWindowCalls;
-    const overallThroughput = RecordStatusService.benchmarkWindowRecords / windowLengthSec;
-
-    await logger.info('📊 Ventana de benchmark de RecordStatusService.checkRecordsStatus', {
-      window_seconds: windowLengthSec,
-      calls: RecordStatusService.benchmarkWindowCalls,
-      total_call_time_ms: RecordStatusService.benchmarkWindowDurationMs,
-      avg_call_time_ms: avgCallTimeMs,
-      total_records: RecordStatusService.benchmarkWindowRecords,
-      overall_throughput: `${overallThroughput.toFixed(2)} rec/s`
-    });
-  }
-
-  // Reiniciar ventana
-  RecordStatusService.benchmarkWindowStartTime = now;
-  RecordStatusService.benchmarkWindowCalls = 0;
-  RecordStatusService.benchmarkWindowDurationMs = 0;
-  RecordStatusService.benchmarkWindowRecords = 0;
-}, RECORD_STATUS_BENCHMARK_WINDOW_MS);
+// // Benchmark periódico por ventana de tiempo para RecordStatusService.checkRecordsStatus (deshabilitado)
+// const RECORD_STATUS_BENCHMARK_WINDOW_MS = 300000; // 60 segundos
+// setInterval(async () => {
+//   const now = Date.now();
+//   const windowLengthMs = now - RecordStatusService.benchmarkWindowStartTime;
+//   const windowLengthSec = windowLengthMs / 1000;
+// 
+//   if (RecordStatusService.benchmarkWindowCalls > 0 && windowLengthSec > 0) {
+//     const avgCallTimeMs = RecordStatusService.benchmarkWindowDurationMs / RecordStatusService.benchmarkWindowCalls;
+//     const overallThroughput = RecordStatusService.benchmarkWindowRecords / windowLengthSec;
+// 
+//     await logger.info('📊 Ventana de benchmark de RecordStatusService.checkRecordsStatus', {
+//       window_seconds: windowLengthSec,
+//       calls: RecordStatusService.benchmarkWindowCalls,
+//       total_call_time_ms: RecordStatusService.benchmarkWindowDurationMs,
+//       avg_call_time_ms: avgCallTimeMs,
+//       total_records: RecordStatusService.benchmarkWindowRecords,
+//       overall_throughput: `${overallThroughput.toFixed(2)} rec/s`
+//     });
+//   }
+// 
+//   // Reiniciar ventana
+//   RecordStatusService.benchmarkWindowStartTime = now;
+//   RecordStatusService.benchmarkWindowCalls = 0;
+//   RecordStatusService.benchmarkWindowDurationMs = 0;
+//   RecordStatusService.benchmarkWindowRecords = 0;
+// }, RECORD_STATUS_BENCHMARK_WINDOW_MS);
 
 module.exports = new RecordStatusService();

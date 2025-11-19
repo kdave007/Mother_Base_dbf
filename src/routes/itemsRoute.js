@@ -260,7 +260,8 @@ class ItemsRoute {
 
       // ✅ CONSULTAR ESTADO DE LOS REGISTROS
       console.log('🔍 [RECORDS] Consultando estado de registros...');
-      
+      const startTime = Date.now();
+
       const statusResults = await recordStatusService.checkRecordsStatus(
         table,
         field_id,
@@ -268,6 +269,9 @@ class ItemsRoute {
         client_id,
         ver
       );
+
+      const durationMs = Date.now() - startTime;
+      console.log(`⏱️ [RECORDS] Consulta de estado completada en ${durationMs} ms`);
 
       console.log('✅ [RECORDS] Consulta completada');
       console.log('📊 [RECORDS] Resultados:', {

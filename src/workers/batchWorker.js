@@ -170,7 +170,7 @@ queue.process('process_batch', async (job) => {
 });
 
 // Benchmark periódico por ventana de tiempo (ej. cada 60s)
-const BENCHMARK_WINDOW_MS = 180000; // 60 segundos
+const BENCHMARK_WINDOW_MS = 600000; // 60 segundos
 setInterval(async () => {
   const now = Date.now();
   const windowLengthMs = now - windowStartTime;
