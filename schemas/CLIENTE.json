@@ -1,0 +1,1054 @@
+{
+  "file_info": {
+    "file_path": "C:\\Users\\campo\\Documents\\projects\\DBF_meta_to_postgresql\\dbf_files\\CLIENTE.DBF",
+    "file_name": "CLIENTE.DBF",
+    "file_size_bytes": 29384046,
+    "record_count": 9722,
+    "field_count": 129,
+    "last_modified": "2125-11-17"
+  },
+  "postgresql_system_fields":[
+    { "name": "_server_id", "type": "INTEGER", "nullable":"False", "autoincremental":"True", "comment": "Identificador único del corte" },
+    { "name": "_natural_id", "type": "VARCHAR", "constrain":"pk","nullable": "False" },
+    { "name": "_client_id", "type": "VARCHAR", "constrain":"pk","nullable": "False" },
+    { "name": "_created_at", "type": "TIMESTAMPTZ", "nullable": "False", "default": "CURRENT_TIMESTAMP", "comment": "Fecha y hora de creación del registro" },
+    { "name": "_updated_at", "type": "TIMESTAMPTZ", "nullable": "False", "default": "CURRENT_TIMESTAMP", "comment": "Fecha y hora de última actualización" },
+    { "name": "_ver", "type": "VARCHAR", "constrain":"pk", "nullable": "False", "default": "1", "comment": "Versión del registro para optimistic locking" },
+    { "name": "_deleted", "type": "BOOLEAN", "nullable": "False", "default": "False", "comment": "" },
+    { "name": "plaza", "type": "VARCHAR", "nullable": "False", "default": "1", "comment": "Versión del registro para optimistic locking" }
+  ],
+  "fields": [
+    {
+      "name": "CLIE_CLAVE",
+      "type": "C",
+      "length": 5,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Character/Text"
+    },
+    {
+      "name": "CLIE_NOMBR",
+      "type": "C",
+      "length": 180,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Character/Text"
+    },
+    {
+      "name": "CLIE_STATU",
+      "type": "C",
+      "length": 1,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Character/Text"
+    },
+    {
+      "name": "CLIE_RFC",
+      "type": "C",
+      "length": 15,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Character/Text"
+    },
+    {
+      "name": "CLIE_DIREC",
+      "type": "C",
+      "length": 100,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Character/Text"
+    },
+    {
+      "name": "CLIE_POBLA",
+      "type": "C",
+      "length": 60,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Character/Text"
+    },
+    {
+      "name": "CLIE_CODIG",
+      "type": "C",
+      "length": 5,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Character/Text"
+    },
+    {
+      "name": "CLIE_REYPA",
+      "type": "C",
+      "length": 4,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Character/Text"
+    },
+    {
+      "name": "CLIE_ZONA",
+      "type": "C",
+      "length": 5,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Character/Text"
+    },
+    {
+      "name": "CLIE_CREDI",
+      "type": "N",
+      "length": 3,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Numeric"
+    },
+    {
+      "name": "CLIE_ULTIM",
+      "type": "C",
+      "length": 8,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Character/Text"
+    },
+    {
+      "name": "VEND_CLAVE",
+      "type": "C",
+      "length": 5,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Character/Text"
+    },
+    {
+      "name": "CLIE_SALDO",
+      "type": "N",
+      "length": 16,
+      "decimal_places": 2,
+      "nullable": true,
+      "description": "Numeric"
+    },
+    {
+      "name": "CLIE_ANUAL",
+      "type": "N",
+      "length": 16,
+      "decimal_places": 2,
+      "nullable": true,
+      "description": "Numeric"
+    },
+    {
+      "name": "CLIE_DESCU",
+      "type": "N",
+      "length": 8,
+      "decimal_places": 4,
+      "nullable": true,
+      "description": "Numeric"
+    },
+    {
+      "name": "CLIE_LISTA",
+      "type": "C",
+      "length": 1,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Character/Text"
+    },
+    {
+      "name": "ENCCOM",
+      "type": "C",
+      "length": 80,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Character/Text"
+    },
+    {
+      "name": "TIPCLI",
+      "type": "C",
+      "length": 1,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Character/Text"
+    },
+    {
+      "name": "CARGOCONT",
+      "type": "C",
+      "length": 30,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Character/Text"
+    },
+    {
+      "name": "CURP",
+      "type": "C",
+      "length": 26,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Character/Text"
+    },
+    {
+      "name": "COLFIS",
+      "type": "C",
+      "length": 60,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Character/Text"
+    },
+    {
+      "name": "CNBRCOM",
+      "type": "C",
+      "length": 80,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Character/Text"
+    },
+    {
+      "name": "TELFI1",
+      "type": "C",
+      "length": 18,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Character/Text"
+    },
+    {
+      "name": "TELFI2",
+      "type": "C",
+      "length": 18,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Character/Text"
+    },
+    {
+      "name": "TELFI3",
+      "type": "C",
+      "length": 18,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Character/Text"
+    },
+    {
+      "name": "CALENT",
+      "type": "C",
+      "length": 60,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Character/Text"
+    },
+    {
+      "name": "COLENT",
+      "type": "C",
+      "length": 60,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Character/Text"
+    },
+    {
+      "name": "CDEENT",
+      "type": "C",
+      "length": 60,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Character/Text"
+    },
+    {
+      "name": "CODENT",
+      "type": "C",
+      "length": 5,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Character/Text"
+    },
+    {
+      "name": "TELEN1",
+      "type": "C",
+      "length": 18,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Character/Text"
+    },
+    {
+      "name": "TELEN2",
+      "type": "C",
+      "length": 18,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Character/Text"
+    },
+    {
+      "name": "TELEN3",
+      "type": "C",
+      "length": 18,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Character/Text"
+    },
+    {
+      "name": "NUMPRO",
+      "type": "C",
+      "length": 10,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Character/Text"
+    },
+    {
+      "name": "BANCO",
+      "type": "C",
+      "length": 15,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Character/Text"
+    },
+    {
+      "name": "RUTA",
+      "type": "C",
+      "length": 25,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Character/Text"
+    },
+    {
+      "name": "DIAREV",
+      "type": "C",
+      "length": 10,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Character/Text"
+    },
+    {
+      "name": "HORAREV",
+      "type": "C",
+      "length": 15,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Character/Text"
+    },
+    {
+      "name": "DIAPAG",
+      "type": "C",
+      "length": 10,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Character/Text"
+    },
+    {
+      "name": "HORPAG",
+      "type": "C",
+      "length": 15,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Character/Text"
+    },
+    {
+      "name": "ZONVEN",
+      "type": "C",
+      "length": 2,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Character/Text"
+    },
+    {
+      "name": "CLIFOR",
+      "type": "L",
+      "length": 1,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Logical/Boolean"
+    },
+    {
+      "name": "CLACLI",
+      "type": "C",
+      "length": 1,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Character/Text"
+    },
+    {
+      "name": "DESCLA",
+      "type": "C",
+      "length": 25,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Character/Text"
+    },
+    {
+      "name": "PRIVEN",
+      "type": "D",
+      "length": 8,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Date"
+    },
+    {
+      "name": "ULTVEN",
+      "type": "D",
+      "length": 8,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Date"
+    },
+    {
+      "name": "VENNET",
+      "type": "N",
+      "length": 16,
+      "decimal_places": 2,
+      "nullable": true,
+      "description": "Numeric"
+    },
+    {
+      "name": "SALINI",
+      "type": "N",
+      "length": 16,
+      "decimal_places": 2,
+      "nullable": true,
+      "description": "Numeric"
+    },
+    {
+      "name": "DEBACU",
+      "type": "N",
+      "length": 16,
+      "decimal_places": 2,
+      "nullable": true,
+      "description": "Numeric"
+    },
+    {
+      "name": "HABACU",
+      "type": "N",
+      "length": 16,
+      "decimal_places": 2,
+      "nullable": true,
+      "description": "Numeric"
+    },
+    {
+      "name": "DEBMES",
+      "type": "N",
+      "length": 16,
+      "decimal_places": 2,
+      "nullable": true,
+      "description": "Numeric"
+    },
+    {
+      "name": "HABMES",
+      "type": "N",
+      "length": 16,
+      "decimal_places": 2,
+      "nullable": true,
+      "description": "Numeric"
+    },
+    {
+      "name": "SALACT",
+      "type": "N",
+      "length": 16,
+      "decimal_places": 2,
+      "nullable": true,
+      "description": "Numeric"
+    },
+    {
+      "name": "USUARIO",
+      "type": "C",
+      "length": 8,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Character/Text"
+    },
+    {
+      "name": "FECHA",
+      "type": "D",
+      "length": 8,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Date"
+    },
+    {
+      "name": "HORA",
+      "type": "C",
+      "length": 8,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Character/Text"
+    },
+    {
+      "name": "OBSERV",
+      "type": "C",
+      "length": 80,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Character/Text"
+    },
+    {
+      "name": "EMAIL",
+      "type": "C",
+      "length": 250,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Character/Text"
+    },
+    {
+      "name": "LIMI_CRED",
+      "type": "N",
+      "length": 16,
+      "decimal_places": 2,
+      "nullable": true,
+      "description": "Numeric"
+    },
+    {
+      "name": "CNEXTER",
+      "type": "C",
+      "length": 30,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Character/Text"
+    },
+    {
+      "name": "CNINTER",
+      "type": "C",
+      "length": 30,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Character/Text"
+    },
+    {
+      "name": "CMUNICIP",
+      "type": "C",
+      "length": 80,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Character/Text"
+    },
+    {
+      "name": "CCODEDO",
+      "type": "C",
+      "length": 4,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Character/Text"
+    },
+    {
+      "name": "CPAIS",
+      "type": "C",
+      "length": 4,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Character/Text"
+    },
+    {
+      "name": "CCODDIV",
+      "type": "C",
+      "length": 3,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Character/Text"
+    },
+    {
+      "name": "CLASIFICA",
+      "type": "C",
+      "length": 15,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Character/Text"
+    },
+    {
+      "name": "TIPO",
+      "type": "C",
+      "length": 1,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Character/Text"
+    },
+    {
+      "name": "CCLASE2",
+      "type": "C",
+      "length": 5,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Character/Text"
+    },
+    {
+      "name": "CCLASE3",
+      "type": "C",
+      "length": 5,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Character/Text"
+    },
+    {
+      "name": "CCLASE4",
+      "type": "C",
+      "length": 5,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Character/Text"
+    },
+    {
+      "name": "CCLASE5",
+      "type": "C",
+      "length": 5,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Character/Text"
+    },
+    {
+      "name": "CUNECODE",
+      "type": "C",
+      "length": 5,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Character/Text"
+    },
+    {
+      "name": "CGRUPO",
+      "type": "C",
+      "length": 10,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Character/Text"
+    },
+    {
+      "name": "CSUBGRUPO",
+      "type": "C",
+      "length": 10,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Character/Text"
+    },
+    {
+      "name": "NCOPIAFA",
+      "type": "N",
+      "length": 1,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Numeric"
+    },
+    {
+      "name": "LREQUEST",
+      "type": "L",
+      "length": 1,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Logical/Boolean"
+    },
+    {
+      "name": "LELIGE",
+      "type": "L",
+      "length": 1,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Logical/Boolean"
+    },
+    {
+      "name": "LB_CRED",
+      "type": "L",
+      "length": 1,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Logical/Boolean"
+    },
+    {
+      "name": "LCONSIGNA",
+      "type": "L",
+      "length": 1,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Logical/Boolean"
+    },
+    {
+      "name": "F_ALTA",
+      "type": "D",
+      "length": 8,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Date"
+    },
+    {
+      "name": "F_BAJA",
+      "type": "D",
+      "length": 8,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Date"
+    },
+    {
+      "name": "NDIAPAG2",
+      "type": "N",
+      "length": 2,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Numeric"
+    },
+    {
+      "name": "NDIAPAG3",
+      "type": "N",
+      "length": 2,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Numeric"
+    },
+    {
+      "name": "CCOBRA",
+      "type": "C",
+      "length": 5,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Character/Text"
+    },
+    {
+      "name": "CPAGA",
+      "type": "C",
+      "length": 3,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Character/Text"
+    },
+    {
+      "name": "NDESCPP",
+      "type": "N",
+      "length": 8,
+      "decimal_places": 4,
+      "nullable": true,
+      "description": "Numeric"
+    },
+    {
+      "name": "NDIASPP",
+      "type": "N",
+      "length": 3,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Numeric"
+    },
+    {
+      "name": "LEXCEDER",
+      "type": "L",
+      "length": 1,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Logical/Boolean"
+    },
+    {
+      "name": "NCLIVENCE",
+      "type": "N",
+      "length": 16,
+      "decimal_places": 2,
+      "nullable": true,
+      "description": "Numeric"
+    },
+    {
+      "name": "CDESVOL",
+      "type": "C",
+      "length": 2,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Character/Text"
+    },
+    {
+      "name": "LMAYOREO",
+      "type": "L",
+      "length": 1,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Logical/Boolean"
+    },
+    {
+      "name": "LCREDITO",
+      "type": "L",
+      "length": 1,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Logical/Boolean"
+    },
+    {
+      "name": "LCALCINT",
+      "type": "L",
+      "length": 1,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Logical/Boolean"
+    },
+    {
+      "name": "NINTMORA",
+      "type": "N",
+      "length": 8,
+      "decimal_places": 4,
+      "nullable": true,
+      "description": "Numeric"
+    },
+    {
+      "name": "TIENDA",
+      "type": "C",
+      "length": 5,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Character/Text"
+    },
+    {
+      "name": "PASSWORD",
+      "type": "C",
+      "length": 8,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Character/Text"
+    },
+    {
+      "name": "CDATEXTR1",
+      "type": "C",
+      "length": 10,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Character/Text"
+    },
+    {
+      "name": "CDATEXTR2",
+      "type": "C",
+      "length": 50,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Character/Text"
+    },
+    {
+      "name": "NDATEXTR3",
+      "type": "N",
+      "length": 17,
+      "decimal_places": 4,
+      "nullable": true,
+      "description": "Numeric"
+    },
+    {
+      "name": "NDATEXTR4",
+      "type": "N",
+      "length": 17,
+      "decimal_places": 4,
+      "nullable": true,
+      "description": "Numeric"
+    },
+    {
+      "name": "NDATEXTR5",
+      "type": "N",
+      "length": 17,
+      "decimal_places": 4,
+      "nullable": true,
+      "description": "Numeric"
+    },
+    {
+      "name": "DDATEXTR6",
+      "type": "D",
+      "length": 8,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Date"
+    },
+    {
+      "name": "CNUMBCO",
+      "type": "C",
+      "length": 12,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Character/Text"
+    },
+    {
+      "name": "CDOMCOB",
+      "type": "C",
+      "length": 60,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Character/Text"
+    },
+    {
+      "name": "CENCCOB",
+      "type": "C",
+      "length": 60,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Character/Text"
+    },
+    {
+      "name": "LISTA2",
+      "type": "C",
+      "length": 1,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Character/Text"
+    },
+    {
+      "name": "CREFREC",
+      "type": "C",
+      "length": 120,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Character/Text"
+    },
+    {
+      "name": "CEMAIL2",
+      "type": "C",
+      "length": 250,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Character/Text"
+    },
+    {
+      "name": "NCAMPO01",
+      "type": "N",
+      "length": 17,
+      "decimal_places": 5,
+      "nullable": true,
+      "description": "Numeric"
+    },
+    {
+      "name": "NCAMPO02",
+      "type": "N",
+      "length": 17,
+      "decimal_places": 5,
+      "nullable": true,
+      "description": "Numeric"
+    },
+    {
+      "name": "CCAMPO10",
+      "type": "C",
+      "length": 5,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Character/Text"
+    },
+    {
+      "name": "CCAMPO11",
+      "type": "C",
+      "length": 50,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Character/Text"
+    },
+    {
+      "name": "CCAMPO12",
+      "type": "C",
+      "length": 50,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Character/Text"
+    },
+    {
+      "name": "CCAMPO13",
+      "type": "C",
+      "length": 50,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Character/Text"
+    },
+    {
+      "name": "LCAMPO20",
+      "type": "L",
+      "length": 1,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Logical/Boolean"
+    },
+    {
+      "name": "LCAMPO21",
+      "type": "L",
+      "length": 1,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Logical/Boolean"
+    },
+    {
+      "name": "DCAMPO31",
+      "type": "D",
+      "length": 8,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Date"
+    },
+    {
+      "name": "CHORA31",
+      "type": "C",
+      "length": 8,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Character/Text"
+    },
+    {
+      "name": "DCAMPO32",
+      "type": "D",
+      "length": 8,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Date"
+    },
+    {
+      "name": "CHORA32",
+      "type": "C",
+      "length": 8,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Character/Text"
+    },
+    {
+      "name": "CADENDA",
+      "type": "C",
+      "length": 5,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Character/Text"
+    },
+    {
+      "name": "LCAMPO22",
+      "type": "L",
+      "length": 1,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Logical/Boolean"
+    },
+    {
+      "name": "NOMSAT",
+      "type": "C",
+      "length": 180,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Character/Text"
+    },
+    {
+      "name": "REGFIS",
+      "type": "C",
+      "length": 3,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Character/Text"
+    },
+    {
+      "name": "CNIV40",
+      "type": "C",
+      "length": 1,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Character/Text"
+    },
+    {
+      "name": "CCAMPO40",
+      "type": "C",
+      "length": 5,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Character/Text"
+    },
+    {
+      "name": "CCAMPO41",
+      "type": "C",
+      "length": 20,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Character/Text"
+    },
+    {
+      "name": "NCAMPO42",
+      "type": "N",
+      "length": 17,
+      "decimal_places": 5,
+      "nullable": true,
+      "description": "Numeric"
+    },
+    {
+      "name": "DCAMPO43",
+      "type": "D",
+      "length": 8,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Date"
+    },
+    {
+      "name": "CHORA43",
+      "type": "C",
+      "length": 8,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Character/Text"
+    }
+  ]
+}

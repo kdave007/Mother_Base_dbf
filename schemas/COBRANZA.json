@@ -1,0 +1,399 @@
+{
+  "file_info": {
+    "file_path": "C:\\Users\\campo\\Documents\\projects\\DBF_meta_to_postgresql\\dbf_files\\COBRANZA.DBF",
+    "file_name": "COBRANZA.DBF",
+    "file_size_bytes": 130818438,
+    "record_count": 344255,
+    "field_count": 47,
+    "last_modified": "2125-11-18"
+  },
+   "postgresql_system_fields":[
+    { "name": "_server_id", "type": "INTEGER", "nullable":"False", "autoincremental":"True", "comment": "Identificador único del corte" },
+    { "name": "_composed_id", "type": "VARCHAR", "constrain":"pk","nullable": "False" },
+    { "name": "_client_id", "type": "VARCHAR", "constrain":"pk","nullable": "False" },
+    { "name": "_created_at", "type": "TIMESTAMPTZ", "nullable": "False", "default": "CURRENT_TIMESTAMP", "comment": "Fecha y hora de creación del registro" },
+    { "name": "_updated_at", "type": "TIMESTAMPTZ", "nullable": "False", "default": "CURRENT_TIMESTAMP", "comment": "Fecha y hora de última actualización" },
+    { "name": "_ver", "type": "VARCHAR", "constrain":"pk", "nullable": "False", "default": "1", "comment": "Versión del registro para optimistic locking" },
+    { "name": "_deleted", "type": "BOOLEAN", "nullable": "False", "default": "False", "comment": "" },
+    { "name": "_hash_comparador", "type": "VARCHAR","nullable": "False" },
+    { "name": "plaza", "type": "VARCHAR", "nullable": "False",  "comment": "" }
+  ],
+  "fields": [
+    {
+      "name": "CLAVE_CL",
+      "type": "C",
+      "length": 5,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Character/Text"
+    },
+    {
+      "name": "FECHA",
+      "type": "D",
+      "length": 8,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Date"
+    },
+    {
+      "name": "CARGO_AB",
+      "type": "C",
+      "length": 1,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Character/Text"
+    },
+    {
+      "name": "CONCEPTO",
+      "type": "C",
+      "length": 2,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Character/Text"
+    },
+    {
+      "name": "NO_DOCUM",
+      "type": "C",
+      "length": 15,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Character/Text"
+    },
+    {
+      "name": "FECHA_VENC",
+      "type": "D",
+      "length": 8,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Date"
+    },
+    {
+      "name": "IMPORTE",
+      "type": "N",
+      "length": 18,
+      "decimal_places": 4,
+      "nullable": true,
+      "description": "Numeric"
+    },
+    {
+      "name": "TIPO_REF",
+      "type": "C",
+      "length": 2,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Character/Text"
+    },
+    {
+      "name": "NO_REF",
+      "type": "C",
+      "length": 6,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Character/Text"
+    },
+    {
+      "name": "CAJERO",
+      "type": "C",
+      "length": 3,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Character/Text"
+    },
+    {
+      "name": "COBRADOR",
+      "type": "C",
+      "length": 3,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Character/Text"
+    },
+    {
+      "name": "ESTADO",
+      "type": "C",
+      "length": 1,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Character/Text"
+    },
+    {
+      "name": "CENTRALIZA",
+      "type": "C",
+      "length": 1,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Character/Text"
+    },
+    {
+      "name": "OBS_CXC",
+      "type": "C",
+      "length": 6,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Character/Text"
+    },
+    {
+      "name": "BANCO",
+      "type": "C",
+      "length": 3,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Character/Text"
+    },
+    {
+      "name": "CONTAB",
+      "type": "C",
+      "length": 1,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Character/Text"
+    },
+    {
+      "name": "PAGADO",
+      "type": "C",
+      "length": 1,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Character/Text"
+    },
+    {
+      "name": "CCONCEP2",
+      "type": "C",
+      "length": 2,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Character/Text"
+    },
+    {
+      "name": "CNO_DOC2",
+      "type": "C",
+      "length": 15,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Character/Text"
+    },
+    {
+      "name": "DFECHAFAC",
+      "type": "D",
+      "length": 8,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Date"
+    },
+    {
+      "name": "NIMPTO1",
+      "type": "N",
+      "length": 18,
+      "decimal_places": 4,
+      "nullable": true,
+      "description": "Numeric"
+    },
+    {
+      "name": "NIMPTO2",
+      "type": "N",
+      "length": 18,
+      "decimal_places": 4,
+      "nullable": true,
+      "description": "Numeric"
+    },
+    {
+      "name": "NIMPTO3",
+      "type": "N",
+      "length": 18,
+      "decimal_places": 4,
+      "nullable": true,
+      "description": "Numeric"
+    },
+    {
+      "name": "CVE_USR",
+      "type": "C",
+      "length": 5,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Character/Text"
+    },
+    {
+      "name": "CCOBRA",
+      "type": "C",
+      "length": 5,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Character/Text"
+    },
+    {
+      "name": "CIMPRESO",
+      "type": "C",
+      "length": 1,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Character/Text"
+    },
+    {
+      "name": "DF_IMPRESO",
+      "type": "D",
+      "length": 8,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Date"
+    },
+    {
+      "name": "CCVEDIV",
+      "type": "C",
+      "length": 3,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Character/Text"
+    },
+    {
+      "name": "TIENDA",
+      "type": "C",
+      "length": 5,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Character/Text"
+    },
+    {
+      "name": "NB_IVAEX",
+      "type": "N",
+      "length": 18,
+      "decimal_places": 4,
+      "nullable": true,
+      "description": "Numeric"
+    },
+    {
+      "name": "NB_IVA0",
+      "type": "N",
+      "length": 18,
+      "decimal_places": 4,
+      "nullable": true,
+      "description": "Numeric"
+    },
+    {
+      "name": "NB_IVA10",
+      "type": "N",
+      "length": 18,
+      "decimal_places": 4,
+      "nullable": true,
+      "description": "Numeric"
+    },
+    {
+      "name": "NB_IVA15",
+      "type": "N",
+      "length": 18,
+      "decimal_places": 4,
+      "nullable": true,
+      "description": "Numeric"
+    },
+    {
+      "name": "CEDODOC2",
+      "type": "C",
+      "length": 1,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Character/Text"
+    },
+    {
+      "name": "DPOST_CAN",
+      "type": "D",
+      "length": 8,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Date"
+    },
+    {
+      "name": "DFECEMITE",
+      "type": "D",
+      "length": 8,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Date"
+    },
+    {
+      "name": "NPORCOM",
+      "type": "N",
+      "length": 8,
+      "decimal_places": 4,
+      "nullable": true,
+      "description": "Numeric"
+    },
+    {
+      "name": "DPAGADO",
+      "type": "D",
+      "length": 8,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Date"
+    },
+    {
+      "name": "NCAMPO1",
+      "type": "N",
+      "length": 17,
+      "decimal_places": 5,
+      "nullable": true,
+      "description": "Numeric"
+    },
+    {
+      "name": "NCAMPO2",
+      "type": "N",
+      "length": 17,
+      "decimal_places": 4,
+      "nullable": true,
+      "description": "Numeric"
+    },
+    {
+      "name": "CCAMPO3",
+      "type": "C",
+      "length": 5,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Character/Text"
+    },
+    {
+      "name": "CCAMPO4",
+      "type": "C",
+      "length": 15,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Character/Text"
+    },
+    {
+      "name": "DCAMPO5",
+      "type": "D",
+      "length": 8,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Date"
+    },
+    {
+      "name": "LCAMPO6",
+      "type": "L",
+      "length": 1,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Logical/Boolean"
+    },
+    {
+      "name": "MODHORA",
+      "type": "C",
+      "length": 8,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Character/Text"
+    },
+    {
+      "name": "MODFECHA",
+      "type": "D",
+      "length": 8,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Date"
+    },
+    {
+      "name": "MODUSER",
+      "type": "C",
+      "length": 5,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Character/Text"
+    }
+  ]
+}

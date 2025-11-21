@@ -1,0 +1,383 @@
+{
+  "file_info": {
+    "file_path": "C:\\Users\\campo\\Documents\\projects\\DBF_meta_to_postgresql\\dbf_files\\FLUJORES.DBF",
+    "file_name": "FLUJORES.DBF",
+    "file_size_bytes": 40263074,
+    "record_count": 100654,
+    "field_count": 45,
+    "last_modified": "2125-11-18"
+  },
+  "postgresql_system_fields":[
+    { "name": "_server_id", "type": "INTEGER", "nullable":"False", "autoincremental":"True", "comment": "Identificador único del corte" },
+    { "name": "_composed_id", "type": "VARCHAR", "constrain":"pk","nullable": "False" },
+    { "name": "_client_id", "type": "VARCHAR", "constrain":"pk","nullable": "False" },
+    { "name": "_created_at", "type": "TIMESTAMPTZ", "nullable": "False", "default": "CURRENT_TIMESTAMP", "comment": "Fecha y hora de creación del registro" },
+    { "name": "_updated_at", "type": "TIMESTAMPTZ", "nullable": "False", "default": "CURRENT_TIMESTAMP", "comment": "Fecha y hora de última actualización" },
+    { "name": "_ver", "type": "VARCHAR", "constrain":"pk", "nullable": "False", "default": "1", "comment": "Versión del registro para optimistic locking" },
+    { "name": "_deleted", "type": "BOOLEAN", "nullable": "False", "default": "False", "comment": "" },
+    { "name": "_hash_comparador", "type": "VARCHAR","nullable": "False" },
+    { "name": "plaza", "type": "VARCHAR", "nullable": "False",  "comment": "" }
+  ],
+  "fields": [
+    {
+      "name": "CVE_CON",
+      "type": "C",
+      "length": 2,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Character/Text"
+    },
+    {
+      "name": "NUM_DOC",
+      "type": "C",
+      "length": 16,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Character/Text"
+    },
+    {
+      "name": "REF_TIPO",
+      "type": "C",
+      "length": 2,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Character/Text"
+    },
+    {
+      "name": "REF_NUM",
+      "type": "C",
+      "length": 10,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Character/Text"
+    },
+    {
+      "name": "IMPORTE",
+      "type": "N",
+      "length": 18,
+      "decimal_places": 4,
+      "nullable": true,
+      "description": "Numeric"
+    },
+    {
+      "name": "ING_EGR",
+      "type": "C",
+      "length": 1,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Character/Text"
+    },
+    {
+      "name": "FECHA",
+      "type": "D",
+      "length": 8,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Date"
+    },
+    {
+      "name": "ESTADO",
+      "type": "C",
+      "length": 1,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Character/Text"
+    },
+    {
+      "name": "BANCO",
+      "type": "C",
+      "length": 3,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Character/Text"
+    },
+    {
+      "name": "CAJA",
+      "type": "C",
+      "length": 2,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Character/Text"
+    },
+    {
+      "name": "NOTAS",
+      "type": "C",
+      "length": 20,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Character/Text"
+    },
+    {
+      "name": "XCORTE",
+      "type": "C",
+      "length": 6,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Character/Text"
+    },
+    {
+      "name": "CAMPO1D",
+      "type": "D",
+      "length": 8,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Date"
+    },
+    {
+      "name": "CAMPO2N",
+      "type": "N",
+      "length": 18,
+      "decimal_places": 4,
+      "nullable": true,
+      "description": "Numeric"
+    },
+    {
+      "name": "CAMPO3C",
+      "type": "C",
+      "length": 5,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Character/Text"
+    },
+    {
+      "name": "NUM_CORTE",
+      "type": "C",
+      "length": 1,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Character/Text"
+    },
+    {
+      "name": "HORA",
+      "type": "C",
+      "length": 8,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Character/Text"
+    },
+    {
+      "name": "USUARIO",
+      "type": "C",
+      "length": 5,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Character/Text"
+    },
+    {
+      "name": "TIENDA",
+      "type": "C",
+      "length": 5,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Character/Text"
+    },
+    {
+      "name": "CCAMPO1",
+      "type": "C",
+      "length": 16,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Character/Text"
+    },
+    {
+      "name": "NCAMPO2",
+      "type": "N",
+      "length": 17,
+      "decimal_places": 4,
+      "nullable": true,
+      "description": "Numeric"
+    },
+    {
+      "name": "DCAMPO3",
+      "type": "D",
+      "length": 8,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Date"
+    },
+    {
+      "name": "LCAMPO4",
+      "type": "L",
+      "length": 1,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Logical/Boolean"
+    },
+    {
+      "name": "IDFLUJO",
+      "type": "C",
+      "length": 10,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Character/Text"
+    },
+    {
+      "name": "IDREMESA",
+      "type": "C",
+      "length": 10,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Character/Text"
+    },
+    {
+      "name": "IDFICHA",
+      "type": "C",
+      "length": 10,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Character/Text"
+    },
+    {
+      "name": "ID01",
+      "type": "C",
+      "length": 6,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Character/Text"
+    },
+    {
+      "name": "ID02",
+      "type": "C",
+      "length": 10,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Character/Text"
+    },
+    {
+      "name": "ID03",
+      "type": "C",
+      "length": 16,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Character/Text"
+    },
+    {
+      "name": "ID04",
+      "type": "C",
+      "length": 10,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Character/Text"
+    },
+    {
+      "name": "IDCENTRA",
+      "type": "C",
+      "length": 21,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Character/Text"
+    },
+    {
+      "name": "DFACTCEN",
+      "type": "D",
+      "length": 8,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Date"
+    },
+    {
+      "name": "CHACTCEN",
+      "type": "C",
+      "length": 8,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Character/Text"
+    },
+    {
+      "name": "NCAMPO01",
+      "type": "N",
+      "length": 17,
+      "decimal_places": 4,
+      "nullable": true,
+      "description": "Numeric"
+    },
+    {
+      "name": "NCAMPO02",
+      "type": "N",
+      "length": 17,
+      "decimal_places": 4,
+      "nullable": true,
+      "description": "Numeric"
+    },
+    {
+      "name": "CCAMPO10",
+      "type": "C",
+      "length": 20,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Character/Text"
+    },
+    {
+      "name": "CCAMPO11",
+      "type": "C",
+      "length": 5,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Character/Text"
+    },
+    {
+      "name": "LCAMPO20",
+      "type": "L",
+      "length": 1,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Logical/Boolean"
+    },
+    {
+      "name": "LCAMPO21",
+      "type": "L",
+      "length": 1,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Logical/Boolean"
+    },
+    {
+      "name": "DFECHA30",
+      "type": "D",
+      "length": 8,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Date"
+    },
+    {
+      "name": "CHORA_30",
+      "type": "C",
+      "length": 8,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Character/Text"
+    },
+    {
+      "name": "DFECHA31",
+      "type": "D",
+      "length": 8,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Date"
+    },
+    {
+      "name": "CHORA_31",
+      "type": "C",
+      "length": 8,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Character/Text"
+    },
+    {
+      "name": "DFECHA32",
+      "type": "D",
+      "length": 8,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Date"
+    },
+    {
+      "name": "CHORA_32",
+      "type": "C",
+      "length": 8,
+      "decimal_places": 0,
+      "nullable": true,
+      "description": "Character/Text"
+    }
+  ]
+}
