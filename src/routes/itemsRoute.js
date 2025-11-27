@@ -7,6 +7,8 @@ const settingsService = require('../services/settingsService');
 
 const RATE_LIMIT_WINDOW_MS = 60000;
 const RATE_LIMIT_MAX_JOBS_PER_CLIENT = 20;
+const RATE_LIMIT_RELAXED_MAX_JOBS_PER_CLIENT = 100;
+const QUEUE_WAIT_THRESHOLD = 200;
 const clientRateLimits = new Map();
 
 class ItemsRoute {
@@ -97,6 +99,19 @@ class ItemsRoute {
 
       console.log('2️⃣ Validaciones pasadas');
 
+      let effectiveMaxJobsPerClient = RATE_LIMIT_RELAXED_MAX_JOBS_PER_CLIENT;
+      try {
+        const counts = await queue.getJobCounts();
+        const waitCount = counts.waiting || 0;
+        if (waitCount > QUEUE_WAIT_THRESHOLD) {
+          effectiveMaxJobsPerClient = RATE_LIMIT_MAX_JOBS_PER_CLIENT;
+        }
+      } catch (e) {
+        await logger.warn('No se pudo obtener jobCounts de Bull para rate limit', {
+          error: e.message
+        });
+      }
+
       if (client_id) {
         const now = Date.now();
         let info = clientRateLimits.get(client_id);
@@ -106,7 +121,7 @@ class ItemsRoute {
         info.count += 1;
         clientRateLimits.set(client_id, info);
 
-        if (info.count > RATE_LIMIT_MAX_JOBS_PER_CLIENT) {
+        if (info.count > effectiveMaxJobsPerClient) {
           throw {
             message: 'Rate limit excedido para este cliente. Intenta más tarde.',
             statusCode: 429,
