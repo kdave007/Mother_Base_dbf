@@ -1,11 +1,13 @@
-
-
 const express = require('express');
 const queue = require('../workers/batchWorker');
 const logger = require('../utils/logger'); 
 const authMiddleware = require('../middleware/auth');
 const recordStatusService = require('../services/recordStatusService');
 const settingsService = require('../services/settingsService');
+
+const RATE_LIMIT_WINDOW_MS = 60000;
+const RATE_LIMIT_MAX_JOBS_PER_CLIENT = 20;
+const clientRateLimits = new Map();
 
 class ItemsRoute {
   constructor(app) {
@@ -95,6 +97,24 @@ class ItemsRoute {
 
       console.log('2️⃣ Validaciones pasadas');
 
+      if (client_id) {
+        const now = Date.now();
+        let info = clientRateLimits.get(client_id);
+        if (!info || now - info.windowStart >= RATE_LIMIT_WINDOW_MS) {
+          info = { windowStart: now, count: 0 };
+        }
+        info.count += 1;
+        clientRateLimits.set(client_id, info);
+
+        if (info.count > RATE_LIMIT_MAX_JOBS_PER_CLIENT) {
+          throw {
+            message: 'Rate limit excedido para este cliente. Intenta más tarde.',
+            statusCode: 429,
+            code: 'RATE_LIMIT_EXCEEDED'
+          };
+        }
+      }
+
       // ✅ ENCOLAR EN REDIS
       console.log('3️⃣ Intentando encolar en Redis...');
       
@@ -107,6 +127,9 @@ class ItemsRoute {
           field_id,
           ver,
           received_at: new Date()
+        }, {
+          removeOnComplete: true,
+          removeOnFail: true
         }),
         new Promise((_, reject) => 
           setTimeout(() => reject({

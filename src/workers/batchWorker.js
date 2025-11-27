@@ -37,7 +37,9 @@ const queue = new Queue('items-processing', {
   redis: { host:  process.env.REDIS_HOST, port: process.env.REDIS_PORT }
 });
 
-queue.process('process_batch', async (job) => {
+const CONCURRENCY = parseInt(process.env.BULL_CONCURRENCY || '1', 10);
+
+queue.process('process_batch', CONCURRENCY, async (job) => {
   const { operation, records, table_name, client_id, field_id, ver } = job.data;
   
   // Marcar inicio de procesamiento
