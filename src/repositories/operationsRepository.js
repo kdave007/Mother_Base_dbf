@@ -41,15 +41,14 @@ class OperationsRepository {
       const query = `
         INSERT INTO ${operationsTableName} 
         (client_id, record_id, batch_version, field_id, operation, status, error_message, 
-         input_data, batch_id, created_at, processed_at)
-        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+         batch_id, created_at, processed_at)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
         ON CONFLICT (client_id, batch_version, record_id) 
         DO UPDATE SET 
           field_id = EXCLUDED.field_id,
           operation = EXCLUDED.operation,
           status = EXCLUDED.status,
           error_message = EXCLUDED.error_message,
-          input_data = EXCLUDED.input_data,
           batch_id = EXCLUDED.batch_id,
           processed_at = CURRENT_TIMESTAMP
       `;
@@ -62,7 +61,6 @@ class OperationsRepository {
         truncatedOperation,
         truncatedStatus,
         errorMessage,
-        inputData ? JSON.stringify(inputData) : null,
         truncatedBatchId
       ]);
       
@@ -99,7 +97,7 @@ class OperationsRepository {
         const truncatedBatchId = op.batchId ? String(op.batchId).substring(0, 100) : null;
 
         const rowPlaceholders = [];
-        for (let i = 0; i < 9; i++) {
+        for (let i = 0; i < 8; i++) {
           rowPlaceholders.push(`$${paramIndex++}`);
         }
 
@@ -113,7 +111,6 @@ class OperationsRepository {
           truncatedOperation,
           truncatedStatus,
           errorMessage,
-          op.inputData ? JSON.stringify(op.inputData) : null,
           truncatedBatchId
         );
       }
@@ -121,7 +118,7 @@ class OperationsRepository {
       const query = `
         INSERT INTO ${operationsTableName} 
         (client_id, record_id, batch_version, field_id, operation, status, error_message, 
-         input_data, batch_id, created_at, processed_at)
+         batch_id, created_at, processed_at)
         VALUES ${rowsPlaceholders.join(', ')}
         ON CONFLICT (client_id, batch_version, record_id) 
         DO UPDATE SET 
@@ -129,7 +126,6 @@ class OperationsRepository {
           operation = EXCLUDED.operation,
           status = EXCLUDED.status,
           error_message = EXCLUDED.error_message,
-          input_data = EXCLUDED.input_data,
           batch_id = EXCLUDED.batch_id,
           processed_at = CURRENT_TIMESTAMP
       `;
@@ -166,7 +162,6 @@ class OperationsRepository {
           operation,
           status,
           error_message,
-          input_data,
           batch_id,
           created_at,
           processed_at
@@ -222,7 +217,6 @@ class OperationsRepository {
           operation,
           status,
           error_message,
-          input_data,
           batch_id,
           created_at,
           processed_at
