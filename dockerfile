@@ -15,11 +15,11 @@ COPY . .
 RUN mkdir -p logs
 
 # Puerto de la aplicación
-EXPOSE 3000
+EXPOSE 8080
 
 # Variables de entorno por defecto
 ENV NODE_ENV=production
-ENV PORT=3000
+ENV PORT=8080
 
 # Comando para iniciar
 CMD ["node", "index.js"]
