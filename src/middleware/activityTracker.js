@@ -9,7 +9,7 @@ class ActivityTracker {
     this.activityBuffer = new Map();
     this.retryCount = new Map(); // Track retry attempts per client_id
     this.maxDataRetries = 3; // Max retries for data validation errors
-    this.flushInterval = 1000; // Flush every 1 second
+    this.flushInterval = 30000; // Flush every 30 seconds
     this.maxBufferSize = 100; // Flush when buffer reaches 100 entries
     this.isConnected = false;
     this.connectionRetries = 0;

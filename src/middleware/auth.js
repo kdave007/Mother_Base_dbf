@@ -81,6 +81,7 @@ const API_KEYS = {
     "XALAP_XSANM": "dE2fG3hI4jK", 
     "XALAP_XAUTD": "lM5nO6pQ7rS", 
     "XALAP_MEVAB": "tU8vW9xY0zA",
+    "XALAP_ELJUG": "fU9vW9xY0zA",
     "XALAP_DUMMY": "LWDSDxN2tH",
 }
   
