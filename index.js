@@ -17,7 +17,9 @@ app.use(express.text({
 const ActivityTracker = require('./src/middleware/activityTracker');
 const schemaService = require('./src/services/schemaService');
 const logger = require('./src/utils/logger');
-const { testPostgresConnection } = require('./src/services/dbHealthService'); // ← Nueva importación
+const { testPostgresConnection } = require('./src/services/dbHealthService');
+const redisClient = require('./src/config/redisClient');
+const { initializeAuthMiddleware } = require('./src/middleware/auth');
 
 // ✅ Activity Tracker Middleware (tracks client activity)
 const activityTracker = new ActivityTracker();
@@ -44,7 +46,17 @@ async function startupChecks() {
       throw new Error(`PostgreSQL error: ${pgTest.error}`);
     }
     
-    // 3. Verificar schema service
+    // 3. Conectar Redis
+    await redisClient.connect();
+    console.log('✅ Redis conectado correctamente');
+    await logger.info('Redis conectado correctamente');
+    
+    // 4. Inicializar servicio de autenticación y cargar API keys a cache
+    const apiKeyService = await initializeAuthMiddleware();
+    console.log('✅ Servicio de autenticación inicializado con API keys desde DB');
+    await logger.info('API Key service inicializado');
+    
+    // 5. Verificar schema service
     const testSchema = await schemaService.loadTableSchema('XCORTE');
     if (testSchema) {
       await logger.info('Schema service funcionando', {
@@ -76,6 +88,15 @@ new ItemsRoute(app);
 app.get('/health', async (req, res) => {
   try {
     const pgTest = await testPostgresConnection();
+    let redisStatus = 'disconnected';
+    
+    try {
+      const redis = redisClient.getClient();
+      await redis.ping();
+      redisStatus = 'connected';
+    } catch (err) {
+      redisStatus = 'error';
+    }
     
     res.json({ 
       status: 'ok', 
@@ -84,7 +105,7 @@ app.get('/health', async (req, res) => {
       services: {
         postgresql: pgTest.success ? 'connected' : 'error',
         database: pgTest.database || 'unknown',
-        redis: 'enabled',
+        redis: redisStatus,
         worker: 'running'
       },
       environment: process.env.NODE_ENV || 'development'
@@ -142,12 +163,14 @@ process.on('uncaughtException', (err) => {
 process.on('SIGTERM', async () => {
   console.log('SIGTERM received, shutting down gracefully...');
   await activityTracker.shutdown();
+  await redisClient.disconnect();
   process.exit(0);
 });
 
 process.on('SIGINT', async () => {
   console.log('SIGINT received, shutting down gracefully...');
   await activityTracker.shutdown();
+  await redisClient.disconnect();
   process.exit(0);
 });
 
