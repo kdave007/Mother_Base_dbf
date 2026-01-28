@@ -9,7 +9,7 @@
   },
   "postgresql_system_fields":[
     { "name": "server_id", "type": "INTEGER", "nullable":"False", "autoincremental":"True", "comment": "Identificador único del corte" },
-    { "name": "recno_id", "type": "INTEGER", "constrain":"pk","nullable": "False" },
+    { "name": "_composed_id", "type": "VARCHAR", "constrain":"pk","nullable": "False" },
     { "name": "client_id", "type": "VARCHAR", "constrain":"pk","nullable": "False" },
     { "name": "created_at", "type": "TIMESTAMPTZ", "nullable": "False", "default": "CURRENT_TIMESTAMP", "comment": "Fecha y hora de creación del registro" },
     { "name": "updated_at", "type": "TIMESTAMPTZ", "nullable": "False", "default": "CURRENT_TIMESTAMP", "comment": "Fecha y hora de última actualización" },
