@@ -4,6 +4,7 @@ const logger = require('../utils/logger');
 const authMiddleware = require('../middleware/auth');
 const recordStatusService = require('../services/recordStatusService');
 const settingsService = require('../services/settingsService');
+const activityService = require('../services/activityService');
 
 const RATE_LIMIT_WINDOW_MS = 60000;
 const RATE_LIMIT_MAX_JOBS_PER_CLIENT = 20;
@@ -21,6 +22,7 @@ class ItemsRoute {
     this.app.post('/items', authMiddleware, this.createItem.bind(this));
     this.app.post('/records', authMiddleware, this.getRecords.bind(this));
     this.app.post('/settings', authMiddleware, this.getSettings.bind(this));
+    this.app.post('/activity', authMiddleware, this.updateActivity.bind(this));
   }
 
   async createItem(req, res) {
@@ -443,6 +445,85 @@ class ItemsRoute {
 
       res.status(statusCode).json(errorResponse);
       console.log(`✅ [SETTINGS] Respuesta de error enviada (${statusCode})`);
+    }
+  }
+
+  async updateActivity(req, res) {
+    try {
+      console.log('📝 [ACTIVITY] Headers:', req.headers['content-type']);
+      console.log('📝 [ACTIVITY] Body:', req.body);
+
+      if (req.headers['content-type'] !== 'application/json') {
+        throw {
+          message: 'Content-Type debe ser application/json',
+          statusCode: 400,
+          code: 'INVALID_CONTENT_TYPE'
+        };
+      }
+
+      const { client_id, task } = req.body;
+
+      if (!client_id) {
+        throw {
+          message: 'client_id es requerido',
+          statusCode: 400,
+          code: 'MISSING_CLIENT_ID'
+        };
+      }
+
+      console.log('✅ [ACTIVITY] Validaciones pasadas');
+      console.log('📊 [ACTIVITY] Datos:', { client_id, task });
+
+      console.log('💾 [ACTIVITY] Actualizando en base de datos (Mexico City timezone)...');
+      
+      const result = await activityService.updateClientActivity(client_id, task);
+
+      console.log('✅ [ACTIVITY] Actividad actualizada exitosamente');
+
+      const response = {
+        status: "ok",
+        msg: "Actividad actualizada exitosamente",
+        status_id: "ACTIVITY_UPDATED",
+        client_id: result.client_id,
+        last_seen: result.last_seen,
+        task: result.task,
+        status_code: 200
+      };
+
+      res.status(200).json(response);
+      console.log('✅ [ACTIVITY] Respuesta enviada');
+
+    } catch (error) {
+      console.error('❌ [ACTIVITY] ERROR:', error.message);
+      
+      const statusCode = error.statusCode || 500;
+      const errorCode = error.code || 'INTERNAL_ERROR';
+      
+      const errorResponse = {
+        status: "error",
+        msg: error.message,
+        status_id: errorCode,
+        status_code: statusCode
+      };
+
+      if (statusCode >= 500) {
+        await logger.error('Error interno en updateActivity', {
+          error: error.message,
+          code: errorCode,
+          statusCode: statusCode,
+          client: req.body?.client_id
+        });
+      } else {
+        await logger.warn('Error del cliente en updateActivity', {
+          error: error.message,
+          code: errorCode,
+          statusCode: statusCode,
+          client: req.body?.client_id
+        });
+      }
+
+      res.status(statusCode).json(errorResponse);
+      console.log(`✅ [ACTIVITY] Respuesta de error enviada (${statusCode})`);
     }
   }
 }
