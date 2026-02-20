@@ -5,6 +5,7 @@ const authMiddleware = require('../middleware/auth');
 const recordStatusService = require('../services/recordStatusService');
 const settingsService = require('../services/settingsService');
 const activityService = require('../services/activityService');
+const syncLogsService = require('../services/syncLogsService');
 
 const RATE_LIMIT_WINDOW_MS = 60000;
 const RATE_LIMIT_MAX_JOBS_PER_CLIENT = 20;
@@ -23,6 +24,7 @@ class ItemsRoute {
     this.app.post('/records', authMiddleware, this.getRecords.bind(this));
     this.app.post('/settings', authMiddleware, this.getSettings.bind(this));
     this.app.post('/activity', authMiddleware, this.updateActivity.bind(this));
+    this.app.post('/metrics', authMiddleware, this.receiveMetrics.bind(this));
   }
 
   async createItem(req, res) {
@@ -524,6 +526,122 @@ class ItemsRoute {
 
       res.status(statusCode).json(errorResponse);
       console.log(`✅ [ACTIVITY] Respuesta de error enviada (${statusCode})`);
+    }
+  }
+
+  async receiveMetrics(req, res) {
+    try {
+      console.log('📊 [METRICS] Headers:', req.headers['content-type']);
+      console.log('📊 [METRICS] Body:', req.body);
+
+      if (req.headers['content-type'] !== 'application/json') {
+        throw {
+          message: 'Content-Type debe ser application/json',
+          statusCode: 400,
+          code: 'INVALID_CONTENT_TYPE'
+        };
+      }
+
+      const { client_id, task, details } = req.body;
+
+      if (!client_id) {
+        throw {
+          message: 'client_id es requerido',
+          statusCode: 400,
+          code: 'MISSING_CLIENT_ID'
+        };
+      }
+
+      if (!task) {
+        throw {
+          message: 'task es requerido',
+          statusCode: 400,
+          code: 'MISSING_TASK'
+        };
+      }
+
+      console.log('✅ [METRICS] Validaciones pasadas');
+      console.log('📊 [METRICS] Datos recibidos:', { 
+        client_id, 
+        task,
+        has_details: !!details 
+      });
+
+      console.log('💾 [METRICS] Guardando actividad en base de datos...');
+      
+      const activityResult = await activityService.updateClientActivity(client_id, task);
+
+      console.log('✅ [METRICS] Actividad guardada exitosamente');
+
+      let syncLogResult = null;
+      if (details && details.sync_summary) {
+        console.log('💾 [METRICS] Guardando sync log...');
+        
+        const syncData = {
+          client_id: client_id,
+          task: task,
+          version: details.version || 'unknown',
+          batch_version: details.batch_version || 'unknown',
+          date_from: details.date_range?.from || null,
+          date_to: details.date_range?.to || null,
+          total_records: details.sync_summary.total_records || 0,
+          completed_records: details.sync_summary.completed || 0,
+          pending_records: details.sync_summary.pending || 0,
+          error_records: details.sync_summary.errors || 0,
+          sync_percentage: details.sync_summary.sync_percentage || 0,
+          latest_failed_batches: details.sync_summary.failed_batches || 0,
+          latest_failed_batch_rec: details.sync_summary.failed_batch_records || 0
+        };
+
+        syncLogResult = await syncLogsService.insertSyncLog(syncData);
+        console.log('✅ [METRICS] Sync log guardado exitosamente');
+      }
+
+      const response = {
+        status: "ok",
+        msg: "Métricas recibidas y guardadas exitosamente",
+        status_id: "METRICS_RECEIVED",
+        client_id: activityResult.client_id,
+        task: activityResult.task,
+        last_seen: activityResult.last_seen,
+        sync_log_saved: !!syncLogResult,
+        status_code: 200
+      };
+
+      res.status(200).json(response);
+      console.log('✅ [METRICS] Respuesta enviada');
+
+    } catch (error) {
+      console.error('❌ [METRICS] ERROR:', error.message);
+      
+      const statusCode = error.statusCode || 500;
+      const errorCode = error.code || 'INTERNAL_ERROR';
+      
+      const errorResponse = {
+        status: "error",
+        msg: error.message,
+        status_id: errorCode,
+        status_code: statusCode
+      };
+
+      if (statusCode >= 500) {
+        await logger.error('Error interno en receiveMetrics', {
+          error: error.message,
+          code: errorCode,
+          statusCode: statusCode,
+          client: req.body?.client_id
+        });
+      } else {
+        await logger.warn('Error del cliente en receiveMetrics', {
+          error: error.message,
+          code: errorCode,
+          statusCode: statusCode,
+          client: req.body?.client_id
+        });
+      }
+
+      res.status(statusCode).json(errorResponse);
+      console.log(`✅ [METRICS] Respuesta de error enviada (${statusCode})`);
     }
   }
 }
