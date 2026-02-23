@@ -23,8 +23,8 @@ class ItemsRoute {
     this.app.post('/items', authMiddleware, this.createItem.bind(this));
     this.app.post('/records', authMiddleware, this.getRecords.bind(this));
     this.app.post('/settings', authMiddleware, this.getSettings.bind(this));
-    this.app.post('/activity', authMiddleware, this.updateActivity.bind(this));
-    this.app.post('/metrics', authMiddleware, this.receiveMetrics.bind(this));
+    // this.app.post('/activity', authMiddleware, this.updateActivity.bind(this));
+    this.app.post('/activity', authMiddleware, this.receiveMetrics.bind(this));
   }
 
   async createItem(req, res) {
