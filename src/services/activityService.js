@@ -20,15 +20,18 @@ class ActivityService {
       INSERT INTO client_activity (client_id, last_seen, created_at, task)
       VALUES (
         $1, 
-        (CURRENT_TIMESTAMP AT TIME ZONE 'America/Mexico_City'),
-        (CURRENT_TIMESTAMP AT TIME ZONE 'America/Mexico_City'),
+        CURRENT_TIMESTAMP,
+        CURRENT_TIMESTAMP,
         $2
       )
       ON CONFLICT (client_id) 
       DO UPDATE SET 
-        last_seen = (CURRENT_TIMESTAMP AT TIME ZONE 'America/Mexico_City'),
+        last_seen = CURRENT_TIMESTAMP,
         task = EXCLUDED.task
-      RETURNING client_id, last_seen, task
+      RETURNING 
+        client_id, 
+        last_seen AT TIME ZONE 'America/Mexico_City' as last_seen, 
+        task
     `;
 
     try {
@@ -54,7 +57,11 @@ class ActivityService {
     const truncatedClientId = String(clientId).substring(0, 50);
 
     const query = `
-      SELECT client_id, last_seen, created_at, task
+      SELECT 
+        client_id, 
+        last_seen AT TIME ZONE 'America/Mexico_City' as last_seen, 
+        created_at AT TIME ZONE 'America/Mexico_City' as created_at, 
+        task
       FROM client_activity
       WHERE client_id = $1
     `;

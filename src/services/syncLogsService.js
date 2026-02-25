@@ -62,7 +62,7 @@ class SyncLogsService {
       )
       VALUES (
         $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13,
-        (CURRENT_TIMESTAMP AT TIME ZONE 'America/Mexico_City')
+        CURRENT_TIMESTAMP
       )
       ON CONFLICT (client_id)
       DO UPDATE SET
@@ -78,8 +78,22 @@ class SyncLogsService {
         sync_percentage = EXCLUDED.sync_percentage,
         latest_failed_batches = EXCLUDED.latest_failed_batches,
         latest_failed_batch_rec = EXCLUDED.latest_failed_batch_rec,
-        created_at = (CURRENT_TIMESTAMP AT TIME ZONE 'America/Mexico_City')
-      RETURNING *
+        created_at = CURRENT_TIMESTAMP
+      RETURNING 
+        client_id,
+        task,
+        version,
+        batch_version,
+        date_from,
+        date_to,
+        total_records,
+        completed_records,
+        pending_records,
+        error_records,
+        sync_percentage,
+        latest_failed_batches,
+        latest_failed_batch_rec,
+        created_at AT TIME ZONE 'America/Mexico_City' as created_at
     `;
 
     try {
@@ -117,7 +131,21 @@ class SyncLogsService {
     const truncatedClientId = String(clientId).substring(0, 100);
 
     const query = `
-      SELECT *
+      SELECT 
+        client_id,
+        task,
+        version,
+        batch_version,
+        date_from,
+        date_to,
+        total_records,
+        completed_records,
+        pending_records,
+        error_records,
+        sync_percentage,
+        latest_failed_batches,
+        latest_failed_batch_rec,
+        created_at AT TIME ZONE 'America/Mexico_City' as created_at
       FROM client_sync_logs
       WHERE client_id = $1
     `;
@@ -144,7 +172,21 @@ class SyncLogsService {
 
   async getAllSyncLogs() {
     const query = `
-      SELECT *
+      SELECT 
+        client_id,
+        task,
+        version,
+        batch_version,
+        date_from,
+        date_to,
+        total_records,
+        completed_records,
+        pending_records,
+        error_records,
+        sync_percentage,
+        latest_failed_batches,
+        latest_failed_batch_rec,
+        created_at AT TIME ZONE 'America/Mexico_City' as created_at
       FROM client_sync_logs
       ORDER BY created_at DESC
     `;
@@ -173,7 +215,21 @@ class SyncLogsService {
     const query = `
       DELETE FROM client_sync_logs
       WHERE client_id = $1
-      RETURNING *
+      RETURNING 
+        client_id,
+        task,
+        version,
+        batch_version,
+        date_from,
+        date_to,
+        total_records,
+        completed_records,
+        pending_records,
+        error_records,
+        sync_percentage,
+        latest_failed_batches,
+        latest_failed_batch_rec,
+        created_at AT TIME ZONE 'America/Mexico_City' as created_at
     `;
 
     try {
