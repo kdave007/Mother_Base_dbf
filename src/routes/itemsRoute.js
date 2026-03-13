@@ -6,6 +6,7 @@ const recordStatusService = require('../services/recordStatusService');
 const settingsService = require('../services/settingsService');
 const activityService = require('../services/activityService');
 const syncLogsService = require('../services/syncLogsService');
+const spotGroupService = require('../services/spotGroupService');
 
 const RATE_LIMIT_WINDOW_MS = 60000;
 const RATE_LIMIT_MAX_JOBS_PER_CLIENT = 20;
@@ -25,6 +26,7 @@ class ItemsRoute {
     this.app.post('/settings', authMiddleware, this.getSettings.bind(this));
     // this.app.post('/activity', authMiddleware, this.updateActivity.bind(this));
     this.app.post('/activity', authMiddleware, this.receiveMetrics.bind(this));
+    this.app.post('/spot-group', authMiddleware, this.getSpotGroup.bind(this));
   }
 
   async createItem(req, res) {
@@ -642,6 +644,68 @@ class ItemsRoute {
 
       res.status(statusCode).json(errorResponse);
       console.log(`✅ [METRICS] Respuesta de error enviada (${statusCode})`);
+    }
+  }
+
+  async getSpotGroup(req, res) {
+    try {
+      console.log('🔍 [CLIENTS] Headers:', req.headers['content-type']);
+      console.log('🔍 [CLIENTS] Body:', req.body);
+
+      if (req.headers['content-type'] !== 'application/json') {
+        return res.status(400).json({
+          error: 'Content-Type must be application/json'
+        });
+      }
+
+      const { group_id } = req.body;
+
+      if (!group_id) {
+        return res.status(400).json({
+          error: 'group_id is required'
+        });
+      }
+
+      console.log('✅ [CLIENTS] Validaciones pasadas');
+      console.log('📊 [CLIENTS] group_id recibido:', group_id);
+
+      console.log('🔍 [CLIENTS] Consultando clientes en base de datos...');
+      const spotGroupResult = await spotGroupService.getActiveByGroupId(group_id);
+
+      if (!spotGroupResult.found) {
+        return res.status(404).json({
+          error: 'Group not found or has no active clients'
+        });
+      }
+
+      console.log('✅ [CLIENTS] Clientes encontrados:', spotGroupResult.count);
+
+      const clients = spotGroupResult.data.map(item => ({
+        client_id: item.client_id,
+        api_key: item.api_key
+      }));
+
+      const response = {
+        group_id: group_id,
+        group_name: group_id,
+        clients: clients
+      };
+
+      res.status(200).json(response);
+      console.log('✅ [CLIENTS] Respuesta enviada');
+
+    } catch (error) {
+      console.error('❌ [CLIENTS] ERROR:', error.message);
+      
+      await logger.error('Error interno en getSpotGroup', {
+        error: error.message,
+        group_id: req.body?.group_id
+      });
+
+      res.status(500).json({
+        error: 'Internal server error'
+      });
+      console.log(`✅ [CLIENTS] Respuesta de error enviada (500)`);
     }
   }
 }
